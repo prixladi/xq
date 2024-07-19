@@ -2,13 +2,12 @@ module XMLParser where
 
 import Control.Applicative
 import Data.Char
-
 import Parser
 import Utils
 
 data XMLValue = XMLContent String | XMLNode String [(String, String)] [XMLValue] deriving (Show)
 
-xmlNameParser :: Parser [Char]
+xmlNameParser :: Parser String
 xmlNameParser =
   (:)
     <$> charPredicateParser isLetter
@@ -56,7 +55,7 @@ xmlValueParser = xmlNodeParser <|> xmlContentParser
 xmlHeaderParser :: Parser String
 xmlHeaderParser =
   wsParser
-    <* stringParser "<?"
+    *> stringParser "<?"
     *> spanParser (/= '>')
     <* charParser '>'
     <* wsParser

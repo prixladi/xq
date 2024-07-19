@@ -1,15 +1,15 @@
-<catalog xls    = "aaa">
-   aaaa
-   <a >aaaa</a>
-   aaaa
-   <book xls    = "aaa" xls    = "aaa" xls    = "aaa" xls    = "aaa">
-      <author>Galos</author>
-      <title>Visua</title>
-      <title>Visua</title>
-      <title>Visua</title>
-      <title>Visua</title>
-      <title>Visua</title>
-   </book  >
-   aaaa
+<?xml version="1.0" encoding="UTF-8"?>
 
-</catalog>
+<bookstore>
+
+  <book>
+    <title lang="en">Harry Potter</title>
+    <price>29.99</price>
+  </book>
+
+  <book>
+    <title lang="en">Learning XML</title>
+    <price>39.95</price>
+  </book>
+
+</bookstore>
