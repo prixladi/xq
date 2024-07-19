@@ -5,7 +5,9 @@ import Data.Char
 import Parser
 import Utils
 
-data XMLValue = XMLContent String | XMLNode String [(String, String)] [XMLValue] deriving (Show)
+type Attribute = (String, String)
+
+data XMLValue = XMLContent String | XMLNode String [Attribute] [XMLValue] deriving (Show)
 
 xmlNameParser :: Parser String
 xmlNameParser =
@@ -13,7 +15,7 @@ xmlNameParser =
     <$> charPredicateParser isLetter
     <*> spanParser (\c -> isLetter c || isNumber c || c == '-' || c == '_' || c == '.')
 
-attributeParser :: Parser (String, String)
+attributeParser :: Parser Attribute
 attributeParser = do
   wsParser
   name <- xmlNameParser
@@ -21,7 +23,7 @@ attributeParser = do
   value <- stringLiteralParser
   pure (name, value)
 
-tagParser :: Parser (String, [(String, String)])
+tagParser :: Parser (String, [Attribute])
 tagParser = do
   wsParser
   charParser '<'
