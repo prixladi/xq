@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "fmap",
-        "foldl"
+        "foldl",
+        "unwords"
     ]
 }
