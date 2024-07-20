@@ -1,10 +1,11 @@
 module Main where
 
 import Debug.Trace
+import Display (displayXMLValues)
 import Parser
 import XMLParser
-import XQueryExecutor
-import XQueryParser
+import XQExecutor
+import XQParser
 
 parseFile :: FilePath -> Parser a -> IO (Maybe a)
 parseFile fileName parser = do
@@ -13,7 +14,7 @@ parseFile fileName parser = do
 
 queryXML :: String -> String -> Maybe [XMLValue]
 queryXML q x = do
-  (_, query) <- runParser xQueryParser q
+  (_, query) <- runParser xQParser q
   (_, xml) <- runParser xmlParser x
 
   pure $ executeXQuery query xml
@@ -24,4 +25,9 @@ queryFile query fileName = do
   pure (queryXML query fileContent)
 
 main :: IO ()
-main = undefined
+main = do
+  res <- queryFile "/bookstore/*//book" "./tests/data/basic.xml"
+  case displayXMLValues <$> res of
+    Just a -> putStrLn a
+    Nothing -> error "Err."
+  pure ()

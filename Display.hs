@@ -2,7 +2,7 @@ module Display where
 
 import Data.List
 import XMLParser
-import XQueryParser
+import XQParser
 
 displayXMLValue :: XMLValue -> String
 displayXMLValue (XMLContent s) = s
@@ -15,14 +15,14 @@ displayXMLValue (XMLNode tag attrs children) =
 displayXMLValues :: [XMLValue] -> String
 displayXMLValues values = intercalate "" (displayXMLValue <$> values)
 
-displayXQueryNodeMatcher :: XQueryNodeMatcher -> String
+displayXQueryNodeMatcher :: XQNodeMatcher -> String
 displayXQueryNodeMatcher WildcardNode = "*"
 displayXQueryNodeMatcher (PreciseNode p) = p
 
-displayXQueryValue :: XQueryValue -> String
+displayXQueryValue :: XQValue -> String
 displayXQueryValue (XQueryNode isRec matcher) = path ++ displayXQueryNodeMatcher matcher
   where
     path = if isRec then "//" else ""
 
-displayXQueryValues :: [XQueryValue] -> String
+displayXQueryValues :: [XQValue] -> String
 displayXQueryValues values = intercalate "" (displayXQueryValue <$> values)
