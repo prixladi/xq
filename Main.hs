@@ -4,7 +4,7 @@ import Debug.Trace
 import Display (displayXMLValues)
 import Parser
 import XMLParser
-import XQExecutor
+import XQRunner
 import XQParser
 
 parseFile :: FilePath -> Parser a -> IO (Maybe a)
@@ -17,7 +17,7 @@ queryXML q x = do
   (_, query) <- runParser xQParser q
   (_, xml) <- runParser xmlParser x
 
-  pure $ executeXQuery query xml
+  pure $ runXQuery query xml
 
 queryFile :: String -> FilePath -> IO (Maybe [XMLValue])
 queryFile query fileName = do
