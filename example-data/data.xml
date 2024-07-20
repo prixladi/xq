@@ -11,5 +11,7 @@
     <title lang="en">Learning XML</title>
     <price>39.95</price>
   </book>
+  
+  <price>88888888</price>
 
 </bookstore>

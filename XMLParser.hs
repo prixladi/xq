@@ -4,7 +4,6 @@ import Control.Applicative
 import Data.Char
 import Data.List
 import Parser
-import Utils
 
 type Attribute = (String, String)
 
@@ -19,6 +18,11 @@ instance Show XMLValue where
       showAttributes [] = ""
       showAttributes attrs = " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
 
+trim :: String -> String
+trim = f . f
+  where
+    f = reverse . dropWhile isSpace
+    
 xmlNameParser :: Parser String
 xmlNameParser =
   (:)
