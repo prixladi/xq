@@ -4,14 +4,17 @@ import Control.Applicative
 import Parser
 import XMLParser
 
-type IsRelative = Bool
+type IsRecursive = Bool
 
-data XQueryValue = XQueryNode IsRelative String deriving (Show)
+data NodeMatcher = WildcardNode | PreciseNode String deriving (Show)
+
+data XQueryValue = XQueryNode IsRecursive NodeMatcher deriving (Show)
 
 xQueryNodeParser :: Parser XQueryValue
-xQueryNodeParser = do
-  pathType <- stringParser "//" <|> stringParser "/"
-  XQueryNode (pathType == "//") <$> xmlNameParser
+xQueryNodeParser =
+  XQueryNode
+    <$> ((True <$ stringParser "//") <|> (False <$ stringParser "/"))
+    <*> (PreciseNode <$> xmlNameParser <|> WildcardNode <$ charParser '*')
 
 xQueryParser :: Parser [XQueryValue]
 xQueryParser = many xQueryNodeParser

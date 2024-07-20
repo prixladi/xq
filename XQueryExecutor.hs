@@ -5,8 +5,9 @@ import Debug.Trace
 import XMLParser
 import XQueryParser
 
-filterMatchingNodes :: String -> XMLValue -> Bool
-filterMatchingNodes en (XMLNode n _ _) | en == n = True
+filterMatchingNodes :: NodeMatcher -> XMLValue -> Bool
+filterMatchingNodes WildcardNode (XMLNode {}) = True
+filterMatchingNodes (PreciseNode en) (XMLNode n _ _) | en == n = True
 filterMatchingNodes _ _ = False
 
 getChildren :: XMLValue -> [XMLValue]
