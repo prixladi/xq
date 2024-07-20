@@ -2,27 +2,17 @@ module XMLParser where
 
 import Control.Applicative
 import Data.Char
-import Data.List
 import Parser
 
 type Attribute = (String, String)
 
-data XMLValue = XMLContent String | XMLNode String [Attribute] [XMLValue]
-
-instance Show XMLValue where
-  show :: XMLValue -> String
-  show (XMLContent s) = s
-  show (XMLNode tag attrs children) =
-    "<" ++ tag ++ showAttributes attrs ++ ">" ++ intercalate "" (show <$> children) ++ "</" ++ tag ++ ">"
-    where
-      showAttributes [] = ""
-      showAttributes attrs = " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
+data XMLValue = XMLContent String | XMLNode String [Attribute] [XMLValue] deriving (Show, Eq)
 
 trim :: String -> String
 trim = f . f
   where
     f = reverse . dropWhile isSpace
-    
+
 xmlNameParser :: Parser String
 xmlNameParser =
   (:)

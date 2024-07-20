@@ -6,9 +6,9 @@ import XMLParser
 
 type IsRecursive = Bool
 
-data NodeMatcher = WildcardNode | PreciseNode String deriving (Show)
+data XQueryNodeMatcher = WildcardNode | PreciseNode String deriving (Show)
 
-data XQueryValue = XQueryNode IsRecursive NodeMatcher deriving (Show)
+data XQueryValue = XQueryNode IsRecursive XQueryNodeMatcher deriving (Show)
 
 xQueryNodeParser :: Parser XQueryValue
 xQueryNodeParser =
