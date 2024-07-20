@@ -1,7 +1,6 @@
 module Main where
 
-import Debug.Trace
-import Display (displayXMLValues)
+import Display 
 import Parser
 import XMLParser
 import XQRunner
@@ -27,7 +26,7 @@ queryFile query fileName = do
 main :: IO ()
 main = do
   res <- queryFile "/bookstore/*//book" "./tests/data/basic.xml"
-  case displayXMLValues <$> res of
+  case display <$> res of
     Just a -> putStrLn a
     Nothing -> error "Err."
   pure ()

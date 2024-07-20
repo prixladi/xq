@@ -4,25 +4,31 @@ import Data.List
 import XMLParser
 import XQParser
 
-displayXMLValue :: XMLValue -> String
-displayXMLValue (XMLContent s) = s
-displayXMLValue (XMLNode tag attrs children) =
-  "<" ++ tag ++ displayAttrs attrs ++ ">" ++ intercalate "" (displayXMLValue <$> children) ++ "</" ++ tag ++ ">"
-  where
-    displayAttrs [] = ""
-    displayAttrs attrs = " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
+class Display g where
+  display :: g -> String
 
-displayXMLValues :: [XMLValue] -> String
-displayXMLValues values = intercalate "" (displayXMLValue <$> values)
+instance Display XMLValue where
+  display :: XMLValue -> String
+  display (XMLContent s) = s
+  display (XMLNode tag attrs children) =
+    "<" ++ tag ++ displayAttrs attrs ++ ">" ++ intercalate "" (display <$> children) ++ "</" ++ tag ++ ">"
+    where
+      displayAttrs [] = ""
+      displayAttrs attrs = " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
 
-displayXQueryNodeMatcher :: XQNodeMatcher -> String
-displayXQueryNodeMatcher WildcardNode = "*"
-displayXQueryNodeMatcher (PreciseNode p) = p
+instance Display [XMLValue] where
+  display :: [XMLValue] -> String
+  display values = intercalate "\n" (display <$> values)
 
-displayXQueryValue :: XQValue -> String
-displayXQueryValue (XQueryNode isRec matcher) = path ++ displayXQueryNodeMatcher matcher
-  where
-    path = if isRec then "//" else ""
+instance Display XQNodeMatcher where
+  display :: XQNodeMatcher -> String
+  display WildcardNode = "*"
+  display (PreciseNode p) = p
 
-displayXQueryValues :: [XQValue] -> String
-displayXQueryValues values = intercalate "" (displayXQueryValue <$> values)
+instance Display XQValue where
+  display :: XQValue -> String
+  display (XQueryNode isRec matcher) = (if isRec then "//" else "") ++ display matcher
+
+instance Display [XQValue] where
+  display :: [XQValue] -> String
+  display values = intercalate "" (display <$> values)
