@@ -1,0 +1,1 @@
+ghc ./Tests/Main.hs -main-is Tests.Main -outputdir "./output" -o "./output/tests"
