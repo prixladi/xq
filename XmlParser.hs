@@ -1,4 +1,4 @@
-module XMLParser where
+module XmlParser where
 
 import Control.Applicative
 import Data.Char
@@ -6,7 +6,7 @@ import Parser
 
 type Attribute = (String, String)
 
-data XMLValue = XMLContent String | XMLNode String [Attribute] [XMLValue] deriving (Show, Eq)
+data XmlValue = XmlContent String | XmlNode String [Attribute] [XmlValue] deriving (Show, Eq)
 
 trim :: String -> String
 trim = f . f
@@ -43,19 +43,19 @@ closingTagParser a =
     *> stringParser a
     <* charWsParser '>'
 
-xmlContentParser :: Parser XMLValue
+xmlContentParser :: Parser XmlValue
 xmlContentParser =
-  XMLContent . trim
+  XmlContent . trim
     <$> notNull (spanParser (\c -> c /= '>' && c /= '<'))
 
-xmlNodeParser :: Parser XMLValue
+xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
   (tag, attributes) <- tagParser
   inner <- many xmlValueParser <|> pure []
   closingTagParser tag
-  pure (XMLNode tag attributes inner)
+  pure (XmlNode tag attributes inner)
 
-xmlValueParser :: Parser XMLValue
+xmlValueParser :: Parser XmlValue
 xmlValueParser = xmlNodeParser <|> xmlContentParser
 
 xmlHeaderParser :: Parser String
@@ -66,7 +66,7 @@ xmlHeaderParser =
     <* charParser '>'
     <* wsParser
 
-xmlParser :: Parser XMLValue
+xmlParser :: Parser XmlValue
 xmlParser = do
   xmlHeaderParser <|> pure []
   xmlNodeParser

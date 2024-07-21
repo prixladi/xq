@@ -2,28 +2,28 @@ module XQRunner where
 
 import Control.Monad
 import Debug.Trace
-import XMLParser
+import XmlParser
 import XQParser
 
-matchNode :: XQNodeMatcher -> XMLValue -> Bool
-matchNode WildcardNode (XMLNode {}) = True
-matchNode (PreciseNode en) (XMLNode n _ _) | en == n = True
+matchNode :: XQNodeMatcher -> XmlValue -> Bool
+matchNode WildcardNode (XmlNode {}) = True
+matchNode (PreciseNode en) (XmlNode n _ _) | en == n = True
 matchNode _ _ = False
 
-getChildren :: XMLValue -> [XMLValue]
-getChildren (XMLNode _ _ c) = c
+getChildren :: XmlValue -> [XmlValue]
+getChildren (XmlNode _ _ c) = c
 getChildren _ = []
 
-runXQValue :: XQValue -> XMLValue -> [XMLValue]
-runXQValue (XQueryNode False en) xml = filter (matchNode en) (getChildren xml)
-runXQValue (XQueryNode True en) xml =
-  runXQValue (XQueryNode False en) xml ++ (runXQValue (XQueryNode True en) =<< getChildren xml)
+runXQValue :: XQValue -> XmlValue -> [XmlValue]
+runXQValue (XQNode False en) xml = filter (matchNode en) (getChildren xml)
+runXQValue (XQNode True en) xml =
+  runXQValue (XQNode False en) xml ++ (runXQValue (XQNode True en) =<< getChildren xml)
 
-runXQValues :: XQValue -> [XMLValue] -> [XMLValue]
+runXQValues :: XQValue -> [XmlValue] -> [XmlValue]
 runXQValues query xml = runXQValue query =<< xml
 
-runXQuery :: [XQValue] -> XMLValue -> [XMLValue]
-runXQuery [] xml = [xml]
-runXQuery query xml = foldl (flip runXQValues) [rootNode] query
+runXQ :: [XQValue] -> XmlValue -> [XmlValue]
+runXQ [] xml = [xml]
+runXQ query xml = foldl (flip runXQValues) [rootNode] query
   where
-    rootNode = XMLNode "root" [] [xml]
+    rootNode = XmlNode "root" [] [xml]

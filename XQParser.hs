@@ -2,17 +2,17 @@ module XQParser where
 
 import Control.Applicative
 import Parser
-import XMLParser
+import XmlParser
 
 type IsRecursive = Bool
 
 data XQNodeMatcher = WildcardNode | PreciseNode String deriving (Show, Eq)
 
-data XQValue = XQueryNode IsRecursive XQNodeMatcher deriving (Show, Eq)
+data XQValue = XQNode IsRecursive XQNodeMatcher deriving (Show, Eq)
 
 xQNodeParser :: Parser XQValue
 xQNodeParser =
-  XQueryNode
+  XQNode
     <$> ((True <$ stringParser "//") <|> (False <$ stringParser "/"))
     <*> (PreciseNode <$> xmlNameParser <|> WildcardNode <$ charParser '*')
 

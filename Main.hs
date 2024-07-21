@@ -1,31 +1,31 @@
 module Main where
 
-import Display 
+import Display
 import Parser
-import XMLParser
-import XQRunner
+import XmlParser
 import XQParser
+import XQRunner
 
 parseFile :: FilePath -> Parser a -> IO (Maybe a)
 parseFile fileName parser = do
   input <- readFile fileName
   pure (snd <$> runParser parser input)
 
-queryXML :: String -> String -> Maybe [XMLValue]
-queryXML q x = do
+queryXml :: String -> String -> Maybe [XmlValue]
+queryXml q x = do
   (_, query) <- runParser xQParser q
   (_, xml) <- runParser xmlParser x
 
-  pure $ runXQuery query xml
+  pure $ runXQ query xml
 
-queryFile :: String -> FilePath -> IO (Maybe [XMLValue])
+queryFile :: String -> FilePath -> IO (Maybe [XmlValue])
 queryFile query fileName = do
   fileContent <- readFile fileName
-  pure (queryXML query fileContent)
+  pure (queryXml query fileContent)
 
 main :: IO ()
 main = do
-  res <- queryFile "/bookstore/*//book" "./tests/data/basic.xml"
+  res <- queryFile "/bookstore/*//book" "./output/basic.xml"
   case display <$> res of
     Just a -> putStrLn a
     Nothing -> error "Err."

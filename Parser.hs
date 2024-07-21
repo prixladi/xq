@@ -1,8 +1,8 @@
 module Parser where
 
 import Control.Applicative
-import Data.Char 
-import Data.Tuple 
+import Data.Char
+import Data.Tuple
 
 newtype Parser a = Parser
   { runParser :: String -> Maybe (String, a)

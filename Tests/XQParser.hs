@@ -24,7 +24,7 @@ parseInvalidXQTest = do
 parseXQWithRemainderTest :: Either String ()
 parseXQWithRemainderTest = do
   let str = "/book//{remainder}"
-  let expected = [XQueryNode False (PreciseNode "book")]
+  let expected = [XQNode False (PreciseNode "book")]
   expectParsingRemainder str "//{remainder}" expected
 
 parseEmptyXQTest :: Either String ()
@@ -36,19 +36,19 @@ parseEmptyXQTest = do
 parseBasicXQTest :: Either String ()
 parseBasicXQTest = do
   let str = "/book"
-  let expected = [XQueryNode False (PreciseNode "book")]
+  let expected = [XQNode False (PreciseNode "book")]
   expectSuccess str expected
 
 parseComplexXQTest :: Either String ()
 parseComplexXQTest = do
   let str = "/book//*//price/*"
-  let expected = [XQueryNode False (PreciseNode "book"), XQueryNode True WildcardNode, XQueryNode True (PreciseNode "price"), XQueryNode False WildcardNode]
+  let expected = [XQNode False (PreciseNode "book"), XQNode True WildcardNode, XQNode True (PreciseNode "price"), XQNode False WildcardNode]
   expectSuccess str expected
 
 expectSuccess :: String -> [XQValue] -> Either String ()
 expectSuccess input expected = case runParser xQParser input of
-  Just (rest, xq) -> if null rest then expectEq expected xq else Left $ "'" ++ rest ++ "' " ++ " remained after parsing XQuery"
-  Nothing -> Left "Unable to parse XQuery"
+  Just (rest, xq) -> if null rest then expectEq expected xq else Left $ "'" ++ rest ++ "' " ++ " remained after parsing XQ"
+  Nothing -> Left "Unable to parse XQ"
 
 expectFailure :: String -> Either String ()
 expectFailure input = case runParser xQParser input of
