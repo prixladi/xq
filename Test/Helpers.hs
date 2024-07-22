@@ -1,4 +1,4 @@
-module Tests.Helpers where
+module Test.Helpers where
 
 class TestModule g where
   runAll :: g -> [(String, Either String ())]

@@ -1,9 +1,9 @@
-module Tests.Main where
+module Test.Main where
 
-import Tests.Helpers
-import Tests.XmlParser
-import Tests.XqParser
-import Tests.XqRunner
+import Test.Helpers
+import Test.XmlParser
+import Test.XqParser
+import Test.XqRunner
 
 printResult :: (String, Either String ()) -> IO ()
 printResult (name, Left error) = putStrLn $ "  " ++ name ++ " - Error: " ++ error

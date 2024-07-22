@@ -1,7 +1,7 @@
-module Tests.XmlParser where
+module Test.XmlParser where
 
 import Parser
-import Tests.Helpers
+import Test.Helpers
 import XmlParser
 
 data XmlParserTestModule = XmlParserTestModule
