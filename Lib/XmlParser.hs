@@ -1,8 +1,8 @@
-module XmlParser where
+module Lib.XmlParser where
 
 import Control.Applicative
 import Data.Char
-import Parser
+import Lib.Parser
 
 type Attribute = (String, String)
 

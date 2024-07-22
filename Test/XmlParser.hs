@@ -1,8 +1,8 @@
 module Test.XmlParser where
 
-import Parser
+import Lib.Parser
+import Lib.XmlParser
 import Test.Helpers
-import XmlParser
 
 data XmlParserTestModule = XmlParserTestModule
 

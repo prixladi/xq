@@ -1,1 +1,1 @@
-ghc ./Main.hs -main-is Main -outputdir "./output" -o "./output/main"
+ghc ./App/Main.hs -main-is App.Main -outputdir "./.output" -o "./.output/app"

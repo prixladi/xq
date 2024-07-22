@@ -1,8 +1,8 @@
-module XqParser where
+module Lib.XqParser where
 
 import Control.Applicative
-import Parser
-import XmlParser
+import Lib.Parser
+import Lib.XmlParser
 
 type IsRecursive = Bool
 

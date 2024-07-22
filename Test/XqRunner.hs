@@ -1,10 +1,10 @@
 module Test.XqRunner where
 
-import Parser
+import Lib.Parser
+import Lib.XmlParser
+import Lib.XqParser
+import Lib.XqRunner
 import Test.Helpers
-import XmlParser
-import XqParser
-import XqRunner
 
 data XqRunnerTestModule = XqRunnerTestModule
 

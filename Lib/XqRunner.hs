@@ -1,8 +1,8 @@
-module XqRunner where
+module Lib.XqRunner where
 
 import Control.Monad
-import XmlParser
-import XqParser
+import Lib.XmlParser
+import Lib.XqParser
 
 matchNode :: XqNodeMatcher -> XmlValue -> Bool
 matchNode WildcardNode (XmlNode {}) = True

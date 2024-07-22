@@ -1,10 +1,10 @@
-module Main where
+module App.Main where
 
-import Serialize
-import Parser
-import XmlParser
-import XqParser
-import XqRunner
+import Lib.Parser
+import Lib.Serialize
+import Lib.XmlParser
+import Lib.XqParser
+import Lib.XqRunner
 
 parseFile :: FilePath -> Parser a -> IO (Maybe a)
 parseFile fileName parser = do
@@ -25,7 +25,7 @@ queryFile query fileName = do
 
 main :: IO ()
 main = do
-  res <- queryFile "/bookstore/*//book" "./output/basic.xml"
+  res <- queryFile "/bookstore/*//book" "./.output/basic.xml"
   case serialize <$> res of
     Just a -> putStrLn a
     Nothing -> error "Err."

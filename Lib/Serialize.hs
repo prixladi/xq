@@ -1,8 +1,8 @@
-module Serialize where
+module Lib.Serialize where
 
 import Data.List
-import XmlParser
-import XqParser
+import Lib.XmlParser
+import Lib.XqParser
 
 class Serialize g where
   serialize :: g -> String

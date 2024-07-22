@@ -1,8 +1,8 @@
 module Test.XqParser where
 
-import Parser
+import Lib.Parser
+import Lib.XqParser
 import Test.Helpers
-import XqParser
 
 data XqParserTestModule = XqParserTestModule
 
@@ -49,7 +49,6 @@ expectSuccess :: String -> [XqValue] -> Either String ()
 expectSuccess input expected = case runParser xqParser input of
   Just (rest, xq) -> if null rest then expectEq expected xq else Left $ "'" ++ rest ++ "' " ++ " remained after parsing Xq"
   Nothing -> Left "Unable to parse Xq"
-
 expectFailure :: String -> Either String ()
 expectFailure input = case runParser xqParser input of
   Just (_, xq) | xq /= [] -> Left $ "Expected parsing of Xq to fail, got: '" ++ show xq ++ "'"
