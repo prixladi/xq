@@ -1,10 +1,10 @@
 module Main where
 
-import Display
+import Serialize
 import Parser
 import XmlParser
-import XQParser
-import XQRunner
+import XqParser
+import XqRunner
 
 parseFile :: FilePath -> Parser a -> IO (Maybe a)
 parseFile fileName parser = do
@@ -13,10 +13,10 @@ parseFile fileName parser = do
 
 queryXml :: String -> String -> Maybe [XmlValue]
 queryXml q x = do
-  (_, query) <- runParser xQParser q
+  (_, query) <- runParser xqParser q
   (_, xml) <- runParser xmlParser x
 
-  pure $ runXQ query xml
+  pure $ runXq query xml
 
 queryFile :: String -> FilePath -> IO (Maybe [XmlValue])
 queryFile query fileName = do
@@ -26,7 +26,7 @@ queryFile query fileName = do
 main :: IO ()
 main = do
   res <- queryFile "/bookstore/*//book" "./output/basic.xml"
-  case display <$> res of
+  case serialize <$> res of
     Just a -> putStrLn a
     Nothing -> error "Err."
   pure ()

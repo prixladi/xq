@@ -1,61 +1,61 @@
-module Tests.XQParser where
+module Tests.XqParser where
 
 import Parser
 import Tests.Helpers
-import XQParser
+import XqParser
 
-data XQParserTestModule = XQParserTestModule
+data XqParserTestModule = XqParserTestModule
 
-instance TestModule XQParserTestModule where
-  runAll :: XQParserTestModule -> [(String, Either String ())]
+instance TestModule XqParserTestModule where
+  runAll :: XqParserTestModule -> [(String, Either String ())]
   runAll _ =
-    [ ("parseInvalidXQ", parseInvalidXQTest),
-      ("parseXQWithRemainder", parseXQWithRemainderTest),
-      ("parseEmptyXQ", parseEmptyXQTest),
-      ("parseBasicXQ", parseBasicXQTest),
-      ("parseComplexXQ", parseComplexXQTest)
+    [ ("parseInvalidXq", parseInvalidXqTest),
+      ("parseXqWithRemainder", parseXqWithRemainderTest),
+      ("parseEmptyXq", parseEmptyXqTest),
+      ("parseBasicXq", parseBasicXqTest),
+      ("parseComplexXq", parseComplexXqTest)
     ]
 
-parseInvalidXQTest :: Either String ()
-parseInvalidXQTest = do
+parseInvalidXqTest :: Either String ()
+parseInvalidXqTest = do
   let str = "/{book"
   expectFailure str
 
-parseXQWithRemainderTest :: Either String ()
-parseXQWithRemainderTest = do
+parseXqWithRemainderTest :: Either String ()
+parseXqWithRemainderTest = do
   let str = "/book//{remainder}"
-  let expected = [XQNode False (PreciseNode "book")]
+  let expected = [XqNode False (PreciseNode "book")]
   expectParsingRemainder str "//{remainder}" expected
 
-parseEmptyXQTest :: Either String ()
-parseEmptyXQTest = do
+parseEmptyXqTest :: Either String ()
+parseEmptyXqTest = do
   let str = ""
   let expected = []
   expectSuccess str expected
 
-parseBasicXQTest :: Either String ()
-parseBasicXQTest = do
+parseBasicXqTest :: Either String ()
+parseBasicXqTest = do
   let str = "/book"
-  let expected = [XQNode False (PreciseNode "book")]
+  let expected = [XqNode False (PreciseNode "book")]
   expectSuccess str expected
 
-parseComplexXQTest :: Either String ()
-parseComplexXQTest = do
+parseComplexXqTest :: Either String ()
+parseComplexXqTest = do
   let str = "/book//*//price/*"
-  let expected = [XQNode False (PreciseNode "book"), XQNode True WildcardNode, XQNode True (PreciseNode "price"), XQNode False WildcardNode]
+  let expected = [XqNode False (PreciseNode "book"), XqNode True WildcardNode, XqNode True (PreciseNode "price"), XqNode False WildcardNode]
   expectSuccess str expected
 
-expectSuccess :: String -> [XQValue] -> Either String ()
-expectSuccess input expected = case runParser xQParser input of
-  Just (rest, xq) -> if null rest then expectEq expected xq else Left $ "'" ++ rest ++ "' " ++ " remained after parsing XQ"
-  Nothing -> Left "Unable to parse XQ"
+expectSuccess :: String -> [XqValue] -> Either String ()
+expectSuccess input expected = case runParser xqParser input of
+  Just (rest, xq) -> if null rest then expectEq expected xq else Left $ "'" ++ rest ++ "' " ++ " remained after parsing Xq"
+  Nothing -> Left "Unable to parse Xq"
 
 expectFailure :: String -> Either String ()
-expectFailure input = case runParser xQParser input of
-  Just (_, xq) | xq /= [] -> Left $ "Expected parsing of XQ to fail, got: '" ++ show xq ++ "'"
+expectFailure input = case runParser xqParser input of
+  Just (_, xq) | xq /= [] -> Left $ "Expected parsing of Xq to fail, got: '" ++ show xq ++ "'"
   _ -> Right ()
 
-expectParsingRemainder :: String -> String -> [XQValue] -> Either String ()
-expectParsingRemainder input expectedRemainder expected = case runParser xQParser input of
+expectParsingRemainder :: String -> String -> [XqValue] -> Either String ()
+expectParsingRemainder input expectedRemainder expected = case runParser xqParser input of
   Just (rest, xq) -> expectEq expected xq >> expectEq expectedRemainder rest
-  Nothing -> Left "Unable to parse XQ"
+  Nothing -> Left "Unable to parse Xq"
