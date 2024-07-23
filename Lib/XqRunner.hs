@@ -15,11 +15,12 @@ getChildren _ = []
 
 runXqValue :: XqValue -> XmlValue -> [XmlValue]
 runXqValue (XqNode False en) xml = filter (matchNode en) (getChildren xml)
-runXqValue (XqNode True en) xml =
-  runXqValue (XqNode False en) xml ++ (runXqValue (XqNode True en) =<< getChildren xml)
+runXqValue (XqNode True en) xml = runXqValue (XqNode False en) xml ++ childrenValues
+  where
+    childrenValues = getChildren xml >>= runXqValue (XqNode True en)
 
 runXqValues :: XqValue -> [XmlValue] -> [XmlValue]
-runXqValues query xml = runXqValue query =<< xml
+runXqValues query xml = xml >>= runXqValue query
 
 runXq :: [XqValue] -> XmlValue -> [XmlValue]
 runXq [] xml = [xml]

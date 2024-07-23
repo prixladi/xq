@@ -3,6 +3,7 @@ module Lib.Parser where
 import Control.Applicative
 import Data.Char
 import Data.Tuple
+import Lib.Utils
 
 newtype Parser a = Parser
   { runParser :: String -> Maybe (String, a)
@@ -60,6 +61,9 @@ charParser x = charPredicateParser (== x)
 
 spanParser :: (Char -> Bool) -> Parser String
 spanParser f = Parser (Just . swap . span f)
+
+spanListParser :: (String -> Bool) -> Parser String
+spanListParser f = Parser (Just . swap . spanList f)
 
 wsParser :: Parser String
 wsParser = spanParser isSpace

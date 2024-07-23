@@ -2,16 +2,17 @@ module Lib.XmlParser where
 
 import Control.Applicative
 import Data.Char
+import Data.List
 import Lib.Parser
+import Lib.Utils
 
 type Attribute = (String, String)
 
-data XmlValue = XmlContent String | XmlNode String [Attribute] [XmlValue] deriving (Show, Eq)
-
-trim :: String -> String
-trim = f . f
-  where
-    f = reverse . dropWhile isSpace
+data XmlValue
+  = XmlComment String
+  | XmlContent String
+  | XmlNode String [Attribute] [XmlValue]
+  deriving (Show, Eq)
 
 xmlNameParser :: Parser String
 xmlNameParser =
@@ -44,9 +45,12 @@ closingTagParser a =
     <* charWsParser '>'
 
 xmlContentParser :: Parser XmlValue
-xmlContentParser =
-  XmlContent . trim
-    <$> notNull (spanParser (\c -> c /= '>' && c /= '<'))
+xmlContentParser = XmlContent . trim <$> notNull (spanParser (/= '<'))
+
+xmlCommentParser :: Parser XmlValue
+xmlCommentParser = XmlComment <$> content
+  where
+    content = stringParser "<!--" *> spanListParser (not . isPrefixOf "-->") <* stringParser "-->"
 
 xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
@@ -56,7 +60,7 @@ xmlNodeParser = do
   pure (XmlNode tag attributes inner)
 
 xmlValueParser :: Parser XmlValue
-xmlValueParser = xmlNodeParser <|> xmlContentParser
+xmlValueParser = xmlCommentParser <|> xmlNodeParser <|> xmlContentParser
 
 xmlHeaderParser :: Parser String
 xmlHeaderParser =

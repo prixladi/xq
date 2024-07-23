@@ -10,11 +10,13 @@ class Serialize g where
 instance Serialize XmlValue where
   serialize :: XmlValue -> String
   serialize (XmlContent s) = s
+  serialize (XmlComment s) = "<!--" ++ s ++ "-->"
   serialize (XmlNode tag attrs children) =
-    "<" ++ tag ++ serializeAttrs attrs ++ ">" ++ intercalate "" (serialize <$> children) ++ "</" ++ tag ++ ">"
+    openingTag ++ intercalate "" (serialize <$> children) ++ closingTag
     where
-      serializeAttrs [] = ""
-      serializeAttrs attrs = " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
+      attributes = if null attrs then "" else " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
+      openingTag = "<" ++ tag ++ attributes ++ ">"
+      closingTag = "</" ++ tag ++ ">"
 
 instance Serialize [XmlValue] where
   serialize :: [XmlValue] -> String

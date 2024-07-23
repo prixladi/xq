@@ -12,6 +12,7 @@ instance TestModule XmlParserTestModule where
     [ ("parseInvalidXml", parseInvalidXmlTest),
       ("parseXmlWithRemainder", parseXmlWithRemainderTest),
       ("parseBasicXml", parseBasicXmlTest),
+      ("parseCommentedXml", parseCommentedXmlTest),
       ("parseComplexXml", parseComplexXmlTest)
     ]
 
@@ -36,6 +37,12 @@ parseComplexXmlTest :: Either String ()
 parseComplexXmlTest = do
   let str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><bookstore><book><title lang=\"en\">Harry Potter</title><price>29.99</price></book><book><title lang=\"en\">Learning XML</title><price>39.95</price></book><price>88888888</price><bookstore><book><title lang=\"en\">LOTR</title><price>29.99</price></book><book><title lang=\"en\">Teaching JSON</title><price>39.95</price></book><price>88888888</price></bookstore></bookstore>"
   let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "title" [("lang", "en")] [XmlContent "Harry Potter"], XmlNode "price" [] [XmlContent "29.99"]], XmlNode "book" [] [XmlNode "title" [("lang", "en")] [XmlContent "Learning XML"], XmlNode "price" [] [XmlContent "39.95"]], XmlNode "price" [] [XmlContent "88888888"], XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "title" [("lang", "en")] [XmlContent "LOTR"], XmlNode "price" [] [XmlContent "29.99"]], XmlNode "book" [] [XmlNode "title" [("lang", "en")] [XmlContent "Teaching JSON"], XmlNode "price" [] [XmlContent "39.95"]], XmlNode "price" [] [XmlContent "88888888"]]]
+  expectParsingSuccess str expected
+
+parseCommentedXmlTest :: Either String ()
+parseCommentedXmlTest = do
+  let str = "<bookstore><book><!--testTest--><price>1</price></book><book><price>2</price></book></bookstore>"
+  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest",XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
   expectParsingSuccess str expected
 
 expectParsingSuccess :: String -> XmlValue -> Either String ()
