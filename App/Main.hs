@@ -11,10 +11,10 @@ import System.Exit
 
 usage :: String
 usage =
-  "Usage: xq <xQuery> <xmlFilePath>\n\
-  \Usage: xq <xQuery> {xmlData from stdin}\n\
-  \Example: xq \"//book/*\" \"./bookstore.xml\"\n\
-  \Example: cat \"./bookstore.xml\" | Examples: xq \"//book/*\""
+  "Usage:    xq <xQuery> <xmlFilePath>\n\
+  \          xq <xQuery> {xmlStdin}\n\
+  \Example:  xq \"//book/*\" \"./bookstore.xml\"\n\
+  \          cat \"./bookstore.xml\" | xq \"//book/*\""
 
 exit :: String -> IO ()
 exit err = do

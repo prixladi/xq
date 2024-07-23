@@ -1,1 +1,0 @@
-ghc ./App/Main.hs -main-is App.Main -outputdir "./.output" -o "./.output/app"
