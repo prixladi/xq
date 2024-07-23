@@ -26,14 +26,16 @@ maybeToEither :: String -> Maybe a -> Either String a
 maybeToEither s Nothing = Left s
 maybeToEither _ (Just val) = Right val
 
-inputIsEmpty :: (String, a) -> Maybe (String, a)
-inputIsEmpty res = if null (fst res) then Just res else Nothing
+expectInputEmpty :: (String, a) -> Maybe a
+expectInputEmpty (input, res) | null input = Just res
+expectInputEmpty _ = Nothing
 
 queryXml :: (String, String) -> Either String [XmlValue]
-queryXml (x, q) = do
-  (_, xml) <- maybeToEither "Unable to parse the XML." (runParser xmlParser x >>= inputIsEmpty)
-  (_, xq) <- maybeToEither "Unable to parse the XQuery." (runParser xqParser q >>= inputIsEmpty)
-  Right $ runXq xq xml
+queryXml (x, q) =
+  runXq <$> xq <*> xml
+  where
+    xml = maybeToEither "Unable to parse the XML." (runParser xmlParser x >>= expectInputEmpty)
+    xq = maybeToEither "Unable to parse the XQuery." (runParser xqParser q >>= expectInputEmpty)
 
 getInputs :: IO (Either String (String, String))
 getInputs = do
@@ -53,5 +55,5 @@ main :: IO ()
 main = do
   inputs <- getInputs
   case inputs >>= queryXml of
-    Right value -> putStrLn (serialize value)
+    Right value -> putStr $ serialize value
     Left err -> exit err
