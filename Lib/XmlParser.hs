@@ -21,21 +21,21 @@ xmlNameParser =
     <*> spanParser (\c -> isLetter c || isNumber c || c == '-' || c == '_' || c == '.')
 
 attributeParser :: Parser Attribute
-attributeParser = do
-  wsParser
-  name <- xmlNameParser
-  charWsParser '='
-  value <- stringLiteralParser
-  pure (name, value)
+attributeParser =
+  (\_ name _ value -> (name, value))
+    <$> wsParser
+    <*> xmlNameParser
+    <*> charWsParser '='
+    <*> stringLiteralParser
 
 tagParser :: Parser (String, [Attribute])
-tagParser = do
-  wsParser
-  charParser '<'
-  tag <- xmlNameParser
-  attributes <- many attributeParser <|> pure []
-  charWsParser '>'
-  pure (tag, attributes)
+tagParser =
+  (\_ _ name attributes _ -> (name, attributes))
+    <$> wsParser
+    <*> charParser '<'
+    <*> xmlNameParser
+    <*> (many attributeParser <|> pure [])
+    <*> charWsParser '>'
 
 closingTagParser :: String -> Parser String
 closingTagParser a =
@@ -62,13 +62,16 @@ xmlNodeParser = do
 xmlValueParser :: Parser XmlValue
 xmlValueParser = xmlCommentParser <|> xmlNodeParser <|> xmlContentParser
 
-xmlHeaderParser :: Parser String
-xmlHeaderParser =
+xmlPrologParser :: Parser String
+xmlPrologParser =
   wsParser
     *> stringParser "<?"
     *> spanParser (/= '>')
     <* charParser '>'
     <* wsParser
+
+xmlHeaderParser :: Parser String
+xmlHeaderParser = xmlPrologParser
 
 xmlParser :: Parser XmlValue
 xmlParser = do
