@@ -1,6 +1,7 @@
 module Lib.XmlParser where
 
 import Control.Applicative
+import Control.Monad
 import Data.Char
 import Data.List
 import Lib.Parser
@@ -22,20 +23,20 @@ xmlNameParser =
 
 attributeParser :: Parser Attribute
 attributeParser =
-  (\_ name _ value -> (name, value))
-    <$> wsParser
+  (,)
+    <$ wsParser
     <*> xmlNameParser
-    <*> charWsParser '='
+    <* charWsParser '='
     <*> stringLiteralParser
 
 tagParser :: Parser (String, [Attribute])
 tagParser =
-  (\_ _ name attributes _ -> (name, attributes))
-    <$> wsParser
-    <*> charParser '<'
+  (,)
+    <$ wsParser
+    <* charParser '<'
     <*> xmlNameParser
     <*> (many attributeParser <|> pure [])
-    <*> charWsParser '>'
+    <* charWsParser '>'
 
 closingTagParser :: String -> Parser String
 closingTagParser a =
@@ -70,10 +71,10 @@ xmlPrologParser =
     <* charParser '>'
     <* wsParser
 
-xmlHeaderParser :: Parser String
-xmlHeaderParser = xmlPrologParser
+xmlHeaderParser :: Parser ()
+xmlHeaderParser = void xmlPrologParser <|> pure ()
 
 xmlParser :: Parser XmlValue
 xmlParser = do
-  xmlHeaderParser <|> pure []
+  xmlHeaderParser
   xmlNodeParser
