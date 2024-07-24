@@ -51,6 +51,7 @@ Some of the issues and limitations that are known to the maintainer/developers.
 1. **Missing error hints** - _When parsing of the XML or XQ fails there are no error hints of which line and character the error occurred._
 2. **Duplicate attributes** - _XML tag with duplicate attributes is not considered invalid but it should be._
 3. **Processing Instruction** - _XML document that contains Processing Instruction is considered invalid._
+3. **DTD** - _XML document that contains DTD is considered invalid._
 
 ## Unit tests
 
