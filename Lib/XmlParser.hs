@@ -17,7 +17,7 @@ data XmlValue
 xmlNameParser :: Parser String
 xmlNameParser =
   (:)
-    <$> charPredicateParser isLetter
+    <$> charPredicateParser (\c -> isLetter c || c == '_')
     <*> spanParser (\c -> isLetter c || isNumber c || c == '-' || c == '_' || c == '.')
 
 attributeParser :: Parser Attribute

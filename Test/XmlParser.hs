@@ -23,8 +23,8 @@ parseInvalidXmlTest = do
 
 parseXmlWithRemainderTest :: Either String ()
 parseXmlWithRemainderTest = do
-  let str = "<bookstore><book><price>1</price></book><book><price>2</price></book></bookstore>remainder"
-  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
+  let str = "<bookstore><book><price>1</price></book><book><__pr.....ice>2</__pr.....ice></book></bookstore>remainder"
+  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "__pr.....ice" [] [XmlContent "2"]]]
   expectParsingRemainder str "remainder" expected
 
 parseBasicXmlTest :: Either String ()
