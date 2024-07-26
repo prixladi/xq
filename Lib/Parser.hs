@@ -56,8 +56,11 @@ charPredicateParser p = Parser f
     f (y : ys) | p y = Just (ys, y)
     f _ = Nothing
 
+intParser :: Parser Int
+intParser = read <$> notNull (spanParser isDigit)
+
 charParser :: Char -> Parser Char
-charParser x = charPredicateParser (== x)
+charParser c = charPredicateParser (== c)
 
 spanParser :: (Char -> Bool) -> Parser String
 spanParser f = Parser (Just . swap . span f)

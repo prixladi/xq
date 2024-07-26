@@ -2,7 +2,6 @@ module Lib.Serialize where
 
 import Data.List
 import Lib.XmlParser
-import Lib.XqParser
 
 class Serialize g where
   serialize :: g -> String
@@ -21,16 +20,3 @@ instance Serialize XmlValue where
 instance Serialize [XmlValue] where
   serialize :: [XmlValue] -> String
   serialize values = intercalate "\n" (serialize <$> values)
-
-instance Serialize XqNodeMatcher where
-  serialize :: XqNodeMatcher -> String
-  serialize WildcardNode = "*"
-  serialize (PreciseNode p) = p
-
-instance Serialize XqValue where
-  serialize :: XqValue -> String
-  serialize (XqNode isRec matcher) = (if isRec then "//" else "") ++ serialize matcher
-
-instance Serialize [XqValue] where
-  serialize :: [XqValue] -> String
-  serialize values = intercalate "" (serialize <$> values)

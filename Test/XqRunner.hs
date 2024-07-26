@@ -14,7 +14,9 @@ instance TestModule XqRunnerTestModule where
     [ ("runEmptyXq", runEmptyXqTest),
       ("runEmptyResultXq", runEmptyResultXqTest),
       ("runBasicXq1", runBasicXqTest1),
-      ("runBasicXq2", runBasicXqTest2)
+      ("runBasicXq2", runBasicXqTest2),
+      ("runXqWithSelectors1", runXqWithSelectorsTest1),
+      ("runXqWithSelectors2", runXqWithSelectorsTest2)
     ]
 
 runEmptyXqTest :: Either String ()
@@ -24,11 +26,10 @@ runEmptyXqTest = do
   let expected = [XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]]
 
   expectEq expected (runXq xq xml)
-
 runEmptyResultXqTest :: Either String ()
 runEmptyResultXqTest = do
   let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
-  let xq = [XqNode False (PreciseNode "bookstore"), XqNode False (PreciseNode "book"), XqNode False WildcardNode, XqNode False (PreciseNode "book")]
+  let xq = [XqNode False [Tag $ PreciseTag "bookstore"], XqNode False [Tag $ PreciseTag "book"], XqNode False [Tag $ WildcardTag], XqNode False [Tag $ PreciseTag "book"]]
   let expected = []
 
   expectEq expected (runXq xq xml)
@@ -36,7 +37,7 @@ runEmptyResultXqTest = do
 runBasicXqTest1 :: Either String ()
 runBasicXqTest1 = do
   let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
-  let xq = [XqNode False (PreciseNode "bookstore"), XqNode False (PreciseNode "book"), XqNode False WildcardNode]
+  let xq = [XqNode False [Tag $ PreciseTag "bookstore"], XqNode False [Tag $ PreciseTag "book"], XqNode False [Tag $ WildcardTag]]
   let expected = [XmlNode "price" [] [XmlContent "1"], XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]
 
   expectEq expected (runXq xq xml)
@@ -44,7 +45,23 @@ runBasicXqTest1 = do
 runBasicXqTest2 :: Either String ()
 runBasicXqTest2 = do
   let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
-  let xq = [XqNode True (PreciseNode "book")]
+  let xq = [XqNode True [Tag $ PreciseTag "book"]]
   let expected = [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithSelectorsTest1 :: Either String ()
+runXqWithSelectorsTest1 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag $ PreciseTag "book", Position $ PrecisePosition Eq 1]]
+  let expected = [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithSelectorsTest2 :: Either String ()
+runXqWithSelectorsTest2 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag $ PreciseTag "book", Position $ PrecisePosition Eq 5]]
+  let expected = []
 
   expectEq expected (runXq xq xml)

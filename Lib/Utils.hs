@@ -16,3 +16,9 @@ trim :: String -> String
 trim = f . f
   where
     f = reverse . dropWhile isSpace
+
+numbered :: [a] -> [(Int, a)]
+numbered = f 1
+  where
+    f _ [] = []
+    f pos (x : xs) = (pos, x) : f (pos + 1) xs
