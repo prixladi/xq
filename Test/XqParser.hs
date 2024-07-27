@@ -16,8 +16,9 @@ instance TestModule XqParserTestModule where
       ("parseEmptyXq", parseEmptyXqTest),
       ("parseBasicXq1", parseBasicXqTest1),
       ("parseBasicXq2", parseBasicXqTest2),
-      ("parseXqWithSelectorTest", parseXqWithSelectorTest),
-      ("parseXqWithJustSelectorTest", parseXqWithJustSelectorTest)
+      ("parseXqWithSelector1", parseXqWithSelectorTest1),
+      ("parseXqWithSelector2", parseXqWithSelectorTest2),
+      ("parseXqWithSelector3", parseXqWithSelectorTest3)
     ]
 
 parseInvalidXqTest1 :: Either String ()
@@ -56,17 +57,23 @@ parseBasicXqTest1 = do
 parseBasicXqTest2 :: Either String ()
 parseBasicXqTest2 = do
   let str = "/book//*//price/*"
-  let expected = [XqNode False [Tag $ PreciseTag "book"], XqNode True [Tag $ WildcardTag], XqNode True [Tag $ PreciseTag "price"], XqNode False [Tag WildcardTag]]
+  let expected = [XqNode False [Tag $ PreciseTag "book"], XqNode True [Tag WildcardTag], XqNode True [Tag $ PreciseTag "price"], XqNode False [Tag WildcardTag]]
   expectSuccess str expected
 
-parseXqWithSelectorTest :: Either String ()
-parseXqWithSelectorTest = do
+parseXqWithSelectorTest1 :: Either String ()
+parseXqWithSelectorTest1 = do
   let str = "/book[position()>3]"
   let expected = [XqNode False [Tag $ PreciseTag "book", Position $ PrecisePosition Gt 3]]
   expectSuccess str expected
 
-parseXqWithJustSelectorTest :: Either String ()
-parseXqWithJustSelectorTest = do
+parseXqWithSelectorTest2 :: Either String ()
+parseXqWithSelectorTest2 = do
+  let str = "//[last()]"
+  let expected = [XqNode True [Position $ LastPosition]]
+  expectSuccess str expected
+
+parseXqWithSelectorTest3 :: Either String ()
+parseXqWithSelectorTest3 = do
   let str = "//*/[position()>3]"
   let expected = [XqNode True [Tag WildcardTag], XqNode False [Position $ PrecisePosition Gt 3]]
   expectSuccess str expected

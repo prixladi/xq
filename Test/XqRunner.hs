@@ -16,7 +16,8 @@ instance TestModule XqRunnerTestModule where
       ("runBasicXq1", runBasicXqTest1),
       ("runBasicXq2", runBasicXqTest2),
       ("runXqWithSelectors1", runXqWithSelectorsTest1),
-      ("runXqWithSelectors2", runXqWithSelectorsTest2)
+      ("runXqWithSelectors2", runXqWithSelectorsTest2),
+      ("runXqWithSelectors3", runXqWithSelectorsTest3)
     ]
 
 runEmptyXqTest :: Either String ()
@@ -65,3 +66,12 @@ runXqWithSelectorsTest2 = do
   let expected = []
 
   expectEq expected (runXq xq xml)
+
+runXqWithSelectorsTest3 :: Either String ()
+runXqWithSelectorsTest3 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag $ PreciseTag "book", Position LastPosition]]
+  let expected = [XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+
+  expectEq expected (runXq xq xml)
+

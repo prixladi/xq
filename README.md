@@ -42,7 +42,7 @@ cat "./bookstore.xml" | xq "//book/*"
 
 ## XQuery
 
-`XQuery` (also referenced as `XQ`) is a language used for querying parsed `XML`. It is a strict subset of the `XPath` language and aims to be completely replaced by `XPath` when every functionality of it is implemented.
+`XQuery` (also referenced as `XQ`) is a language used for querying parsed `XML`. It is a small subset of the `XPath` language and aims to be completely replaced by `XPath` if every functionality of it gets implemented.
 
 ## Known issues and limitations
 

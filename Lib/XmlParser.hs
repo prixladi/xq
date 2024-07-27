@@ -35,7 +35,7 @@ tagParser =
     <$ wsParser
     <* charParser '<'
     <*> xmlNameParser
-    <*> (many attributeParser <|> pure [])
+    <*> many attributeParser
     <* charWsParser '>'
 
 closingTagParser :: String -> Parser String
@@ -56,7 +56,7 @@ xmlCommentParser = XmlComment <$> content
 xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
   (tag, attributes) <- tagParser
-  inner <- many xmlValueParser <|> pure []
+  inner <- many xmlValueParser
   closingTagParser tag
   pure (XmlNode tag attributes inner)
 

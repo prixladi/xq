@@ -12,33 +12,36 @@ data PositionSelector = PrecisePosition Cmp Int | LastPosition deriving (Show, E
 
 data TagSelector = WildcardTag | PreciseTag String deriving (Show, Eq)
 
-data Selector = Position PositionSelector | Tag TagSelector deriving (Show, Eq)
+data Selector = Position PositionSelector | Tag TagSelector | Attribute (String, Maybe String) deriving (Show, Eq)
 
 data XqValue = XqNode IsRecursive [Selector] deriving (Show, Eq)
 
-xqMatchPosParser :: Parser PositionSelector
-xqMatchPosParser =
+positionSelectorParser :: Parser PositionSelector
+positionSelectorParser =
   (PrecisePosition Eq <$> intParser)
     <|> (PrecisePosition Eq <$> (stringParser "position()=" *> intParser))
     <|> (PrecisePosition Lt <$> (stringParser "position()<" *> intParser))
     <|> (PrecisePosition Gt <$> (stringParser "position()>" *> intParser))
     <|> (LastPosition <$ stringParser "last()")
 
-xqMatchParser :: Parser Selector
-xqMatchParser =
-  charParser '['
-    *> (Position <$> xqMatchPosParser)
-    <* charParser ']'
+attributeSelectorParser :: Parser (String, Maybe String)
+attributeSelectorParser =
+  (,)
+    <$> spanParser (/= '=')
+    <*> optional (charParser '=' *> stringLiteralParser)
 
-xqNodeParser :: Parser XqValue
-xqNodeParser =
-  XqNode
-    <$> ((True <$ stringParser "//") <|> (False <$ charParser '/'))
-    <*> notNull ((++) <$> tagSelector <*> otherSelectors)
+selectorsParser :: Parser [Selector]
+selectorsParser = notNull ((++) <$> tagSelector <*> many otherSelector)
   where
     -- Just one tag selector is allowed and it must be first, it is also optional
-    tagSelector = pure . Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*') <|> pure []
-    otherSelectors = many xqMatchParser <|> pure []
+    tagSelector = (pure . Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*')) <|> pure []
+    otherSelector = charParser '[' *> ((Position <$> positionSelectorParser) <|> (Attribute <$> attributeSelectorParser)) <* charParser ']'
+
+nodeParser :: Parser XqValue
+nodeParser =
+  XqNode
+    <$> ((True <$ stringParser "//") <|> (False <$ charParser '/'))
+    <*> selectorsParser
 
 xqParser :: Parser [XqValue]
-xqParser = many xqNodeParser
+xqParser = many nodeParser

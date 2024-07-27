@@ -7,19 +7,19 @@ import Lib.XqParser
 
 matchTag :: TagSelector -> XmlValue -> Bool
 matchTag WildcardTag _ = True
-matchTag (PreciseTag en) (XmlNode n _ _) | en == n = True
+matchTag (PreciseTag en) (XmlNode n _ _) = en == n
 matchTag _ _ = False
 
-matchPosition :: (Int -> Bool) -> (Int, XmlValue) -> Bool
-matchPosition pred (p, XmlNode {}) = pred p
-matchPosition _ _ = False
+matchPosition :: PositionSelector -> Int -> (Int, XmlValue) -> Bool
+matchPosition (PrecisePosition Eq ep) _ (p, XmlNode {}) = p == ep
+matchPosition (PrecisePosition Gt ep) _ (p, XmlNode {}) = p > ep
+matchPosition (PrecisePosition Lt ep) _ (p, XmlNode {}) = p < ep
+matchPosition LastPosition len (p, XmlNode {}) = p == len
+matchPosition _ _ _ = False
 
 matchNode :: Selector -> Int -> (Int, XmlValue) -> Bool
 matchNode (Tag tag) _ (_, node) = matchTag tag node
-matchNode (Position (PrecisePosition Eq p)) _ node = matchPosition (== p) node
-matchNode (Position (PrecisePosition Gt p)) _ node = matchPosition (> p) node
-matchNode (Position (PrecisePosition Lt p)) _ node = matchPosition (< p) node
-matchNode (Position LastPosition) len node = matchPosition (== len) node
+matchNode (Position p) len node = matchPosition p len node
 
 filterNodes :: [Selector] -> [XmlValue] -> [XmlValue]
 filterNodes match xml = foldl foldBySelector xml match
