@@ -12,9 +12,17 @@ data PositionSelector = PrecisePosition Cmp Int | LastPosition deriving (Show, E
 
 data TagSelector = WildcardTag | PreciseTag String deriving (Show, Eq)
 
-data Selector = Position PositionSelector | Tag TagSelector | Attribute (String, Maybe String) deriving (Show, Eq)
+data AttributeSelector = BasicAttribute String (Maybe String) deriving (Show, Eq)
+
+data Selector = Position PositionSelector | Tag TagSelector | Attribute AttributeSelector deriving (Show, Eq)
 
 data XqValue = XqNode IsRecursive [Selector] deriving (Show, Eq)
+
+attributeLiteralParser :: Parser String
+attributeLiteralParser =
+  charParser '\''
+    *> spanParser (/= '\'')
+    <* charParser '\''
 
 positionSelectorParser :: Parser PositionSelector
 positionSelectorParser =
@@ -24,17 +32,16 @@ positionSelectorParser =
     <|> (PrecisePosition Gt <$> (stringParser "position()>" *> intParser))
     <|> (LastPosition <$ stringParser "last()")
 
-attributeSelectorParser :: Parser (String, Maybe String)
+attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
-  (,)
-    <$> spanParser (/= '=')
-    <*> optional (charParser '=' *> stringLiteralParser)
+  BasicAttribute
+    <$> (charParser '@' *> spanParser (\c -> c /= '=' && c /= ']'))
+    <*> optional (charParser '=' *> attributeLiteralParser)
 
 selectorsParser :: Parser [Selector]
-selectorsParser = notNull ((++) <$> tagSelector <*> many otherSelector)
+selectorsParser = notNull ((:) <$> tagSelector <*> many otherSelector)
   where
-    -- Just one tag selector is allowed and it must be first, it is also optional
-    tagSelector = (pure . Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*')) <|> pure []
+    tagSelector = Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*')
     otherSelector = charParser '[' *> ((Position <$> positionSelectorParser) <|> (Attribute <$> attributeSelectorParser)) <* charParser ']'
 
 nodeParser :: Parser XqValue

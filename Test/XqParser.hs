@@ -68,14 +68,14 @@ parseXqWithSelectorTest1 = do
 
 parseXqWithSelectorTest2 :: Either String ()
 parseXqWithSelectorTest2 = do
-  let str = "//[last()]"
-  let expected = [XqNode True [Position $ LastPosition]]
+  let str = "//*[last()]"
+  let expected = [XqNode True [Tag WildcardTag, Position LastPosition]]
   expectSuccess str expected
 
 parseXqWithSelectorTest3 :: Either String ()
 parseXqWithSelectorTest3 = do
-  let str = "//*/[position()>3]"
-  let expected = [XqNode True [Tag WildcardTag], XqNode False [Position $ PrecisePosition Gt 3]]
+  let str = "//*/*[position()>3]"
+  let expected = [XqNode True [Tag WildcardTag], XqNode False [Tag WildcardTag, Position $ PrecisePosition Gt 3]]
   expectSuccess str expected
 
 expectSuccess :: String -> [XqValue] -> Either String ()

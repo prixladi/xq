@@ -17,9 +17,15 @@ matchPosition (PrecisePosition Lt ep) _ (p, XmlNode {}) = p < ep
 matchPosition LastPosition len (p, XmlNode {}) = p == len
 matchPosition _ _ _ = False
 
+matchAttribute :: AttributeSelector -> XmlValue -> Bool
+matchAttribute (BasicAttribute name Nothing) (XmlNode _ attributes _) = name `elem` (fst <$> attributes)
+matchAttribute (BasicAttribute name (Just value)) (XmlNode _ attributes _) = (name, value) `elem` attributes
+matchAttribute _ _ = False
+
 matchNode :: Selector -> Int -> (Int, XmlValue) -> Bool
 matchNode (Tag tag) _ (_, node) = matchTag tag node
-matchNode (Position p) len node = matchPosition p len node
+matchNode (Attribute att) _ (_, node) = matchAttribute att node
+matchNode (Position pos) len node = matchPosition pos len node
 
 filterNodes :: [Selector] -> [XmlValue] -> [XmlValue]
 filterNodes match xml = foldl foldBySelector xml match

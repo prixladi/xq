@@ -17,7 +17,11 @@ instance TestModule XqRunnerTestModule where
       ("runBasicXq2", runBasicXqTest2),
       ("runXqWithSelectors1", runXqWithSelectorsTest1),
       ("runXqWithSelectors2", runXqWithSelectorsTest2),
-      ("runXqWithSelectors3", runXqWithSelectorsTest3)
+      ("runXqWithSelectors3", runXqWithSelectorsTest3),
+      ("runXqWithAttributeSelectors1", runXqWithAttributeSelectorsTest1),
+      ("runXqWithAttributeSelectors2", runXqWithAttributeSelectorsTest2),
+      ("runXqWithAttributeSelectors3", runXqWithAttributeSelectorsTest3),
+      ("runXqWithAttributeSelectors4", runXqWithAttributeSelectorsTest4)
     ]
 
 runEmptyXqTest :: Either String ()
@@ -75,3 +79,34 @@ runXqWithSelectorsTest3 = do
 
   expectEq expected (runXq xq xml)
 
+runXqWithAttributeSelectorsTest1 :: Either String ()
+runXqWithAttributeSelectorsTest1 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" Nothing]]
+  let expected = [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithAttributeSelectorsTest2 :: Either String ()
+runXqWithAttributeSelectorsTest2 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" Nothing, Position LastPosition]]
+  let expected = [XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithAttributeSelectorsTest3 :: Either String ()
+runXqWithAttributeSelectorsTest3 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" (Just "de")]]
+  let expected = [XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithAttributeSelectorsTest4 :: Either String ()
+runXqWithAttributeSelectorsTest4 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" Nothing], XqNode False [Tag $ PreciseTag "price"]]
+  let expected = [XmlNode "price" [] [XmlContent "1"],XmlNode "price" [] [XmlContent "2"]]
+
+  expectEq expected (runXq xq xml)
