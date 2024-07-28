@@ -13,12 +13,13 @@ instance TestModule XmlParserTestModule where
       ("parseXmlWithRemainder", parseXmlWithRemainderTest),
       ("parseBasicXml", parseBasicXmlTest),
       ("parseCommentedXml", parseCommentedXmlTest),
-      ("parseXmlWithProlog", parseXmlWithPrologTest)
+      ("parseXmlWithProlog", parseXmlWithPrologTest),
+      ("parseXmlWithProcessingInstructionsTest", parseXmlWithProcessingInstructionsTest)
     ]
 
 parseInvalidXmlTest :: Either String ()
 parseInvalidXmlTest = do
-  let str = "<bookstoree><book><price>1</price></book><book><price>2</price></book></bookstore>"
+  let str = "<books><book><price>1</price></book><book><price>2</price></book></bookstore>"
   expectParsingFailure str
 
 parseXmlWithRemainderTest :: Either String ()
@@ -42,6 +43,12 @@ parseXmlWithPrologTest = do
 parseCommentedXmlTest :: Either String ()
 parseCommentedXmlTest = do
   let str = "<bookstore><book><!--testTest--><price>1</price></book><book><price>2</price></book></bookstore>"
+  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest",XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
+  expectParsingSuccess str expected
+
+parseXmlWithProcessingInstructionsTest :: Either String ()
+parseXmlWithProcessingInstructionsTest = do
+  let str = "<?pi aaaa ?><bookstore><book><!--testTest--><price>1</price><?pi aaaa ?></book><book><price>2<?pi aaaa ?></price></book><?pi aaaa ?></bookstore><?pi aaaa ?>"
   let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest",XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
   expectParsingSuccess str expected
 

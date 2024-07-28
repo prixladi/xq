@@ -49,9 +49,15 @@ cat "./bookstore.xml" | xq "//book/*"
 Some of the issues and limitations that are known to the maintainer/developers.
 
 1. **Missing error hints** - _When parsing of the XML or XQ fails there are no error hints of which line and character the error occurred._
-2. **Duplicate attributes** - _XML tag with duplicate attributes is not considered invalid but it should be._
-3. **Processing Instruction** - _XML document that contains Processing Instruction is considered invalid._
-3. **DTD** - _XML document that contains DTD is considered invalid._
+2. **DTD** - _XML document that contains DTD is considered invalid._
+3. **XML parsing strictness** -
+   _Parsing of the XML is not as strict as it should be. Such as:_
+
+   - _XML tag with duplicate attributes is not considered invalid but it should be._
+   - _Tags that start with string **'xml'** are considered valid_
+   - _XML prelude is not validated at all and can be included anywhere in the document_
+
+   _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
 
 ## Unit tests
 

@@ -3,6 +3,7 @@ module Lib.XmlParser where
 import Control.Applicative
 import Control.Monad
 import Data.Char
+import Data.Functor
 import Data.List
 import Lib.Parser
 import Lib.Utils
@@ -53,28 +54,30 @@ xmlCommentParser = XmlComment <$> content
   where
     content = stringParser "<!--" *> spanListParser (not . isPrefixOf "-->") <* stringParser "-->"
 
+-- | Combinator that wraps a parser with parsers that take care of removing processing instructions
+withPi :: Parser a -> Parser a
+withPi p = processingInstructionsParser *> p <* processingInstructionsParser
+  where
+    processingInstructionsParser =
+      void $
+        many
+          ( wsParser
+              *> stringParser "<?"
+              *> spanParser (/= '>')
+              <* charParser '>'
+              <* wsParser
+          )
+
 xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
   (tag, attributes) <- tagParser
-  inner <- many xmlValueParser
+  inner <- many (withPi xmlValueParser)
   closingTagParser tag
   pure (XmlNode tag attributes inner)
 
 xmlValueParser :: Parser XmlValue
 xmlValueParser = xmlCommentParser <|> xmlNodeParser <|> xmlContentParser
 
-xmlPrologParser :: Parser String
-xmlPrologParser =
-  wsParser
-    *> stringParser "<?"
-    *> spanParser (/= '>')
-    <* charParser '>'
-    <* wsParser
-
-xmlHeaderParser :: Parser ()
-xmlHeaderParser = void xmlPrologParser <|> pure ()
-
 xmlParser :: Parser XmlValue
-xmlParser = do
-  xmlHeaderParser
-  xmlNodeParser
+-- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always need to be one root node
+xmlParser = withPi xmlNodeParser
