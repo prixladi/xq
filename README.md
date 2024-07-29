@@ -42,7 +42,38 @@ cat "./bookstore.xml" | xq "//book/*"
 
 ## XQuery
 
-`XQuery` (also referenced as `XQ`) is a language used for querying parsed `XML`. It is a small subset of the `XPath` language and aims to be completely replaced by `XPath` if every functionality of it gets implemented.
+`XQuery` (also referenced as `XQ`) is a language used for querying parsed `XML`. It is a small subset of the `XPath` language and aims to be completely replaced by `XPath` if every functionality gets implemented.
+
+### Supported features
+
+Supported features can be seen in the examples below. More exhaustive documentation is currently in progress. Right now you can check source code directly if you need specific. Parsing of the XQuery can be found in the [Parser file](Lib/XqParser.hs) and usage in querying XML can be found in the [Runner file](Lib/XqRunner.hs).
+
+### Examples
+
+**Descendant selectors**
+
+|              | Expression |
+| ------------ | ---------- |
+| div          | //div      |
+| div a        | //div//a   |
+| div \*       | //div//\*  |
+| div > \*     | //div/\*   |
+| :root > body | /body      |
+| :root        | /\*        |
+
+**Attribute selectors**
+
+|                      | Expression              |
+| -------------------- | ----------------------- |
+| input[type="submit"] | //input[@type="submit"] |
+| a[rel]               | //a[@rel]               |
+
+**Position selectors**
+| | Expression |
+| -------------------- | ----------------------- |
+| ul > li:first-of-type | //ul/li[1] |
+| ul > li:last-of-type | //ul/li[last()] |
+| ul[test="true"] > li[test="true"]:last-of-type | //ul[@test="true"]/li[@test="true"][last()] |
 
 ## Known issues and limitations
 
@@ -54,7 +85,7 @@ Some of the issues and limitations that are known to the maintainer/developers.
    _Parsing of the XML is not as strict as it should be. Such as:_
 
    - _XML tag with duplicate attributes is not considered invalid but it should be._
-   - _Tags that start with string **'xml'** are considered valid_
+   - _Tags that start with the string **'xml'** are considered valid_
    - _XML prelude is not validated at all and can be included anywhere in the document_
 
    _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
