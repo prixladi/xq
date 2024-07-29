@@ -12,6 +12,7 @@ type Attribute = (String, String)
 
 data XmlValue
   = XmlComment String
+  | XmlProcessingInstruction String
   | XmlContent String
   | XmlNode String [Attribute] [XmlValue]
   deriving (Show, Eq)
@@ -19,8 +20,8 @@ data XmlValue
 xmlNameParser :: Parser String
 xmlNameParser =
   (:)
-    <$> charPredicateParser (\c -> isLetter c || c == '_')
-    <*> spanParser (\c -> isLetter c || isNumber c || c == '-' || c == '_' || c == '.')
+    <$> charPredicateParser (anyOf [isLetter, (== '_')])
+    <*> spanParser (anyOf [isLetter, isNumber, (== '-'), (== '_'), (== '.')])
 
 attributeParser :: Parser Attribute
 attributeParser =
@@ -54,30 +55,36 @@ xmlCommentParser = XmlComment <$> content
   where
     content = stringParser "<!--" *> spanListParser (not . isPrefixOf "-->") <* stringParser "-->"
 
--- | Combinator that wraps a parser with parsers that take care of removing processing instructions
-withPi :: Parser a -> Parser a
-withPi p = processingInstructionsParser *> p <* processingInstructionsParser
+xmlProcessingInstructionsParser :: Parser XmlValue
+xmlProcessingInstructionsParser =
+  XmlProcessingInstruction
+    <$> ( wsParser
+            *> stringParser "<?"
+            *> (unwords <$> many contentParts)
+            <* charParser '>'
+            <* wsParser
+        )
   where
-    processingInstructionsParser =
-      void $
-        many
-          ( wsParser
-              *> stringParser "<?"
-              *> spanParser (/= '>')
-              <* charParser '>'
-              <* wsParser
-          )
+    contentParts = notNull (spanParser $ noneOf [(== '>'), (== '"')]) <|> stringLiteralParser
 
 xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
   (tag, attributes) <- tagParser
-  inner <- many (withPi xmlValueParser)
+  inner <- many xmlValueParser
   closingTagParser tag
   pure (XmlNode tag attributes inner)
 
 xmlValueParser :: Parser XmlValue
-xmlValueParser = xmlCommentParser <|> xmlNodeParser <|> xmlContentParser
+xmlValueParser =
+  xmlCommentParser
+    <|> xmlProcessingInstructionsParser
+    <|> xmlNodeParser
+    <|> xmlContentParser
+
+-- | Combinator that wraps a parser with parsers that ignore surrounding processing instructions
+ignorePi :: Parser a -> Parser a
+ignorePi p = many xmlProcessingInstructionsParser *> p <* many xmlProcessingInstructionsParser
 
 xmlParser :: Parser XmlValue
 -- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always need to be one root node
-xmlParser = withPi xmlNodeParser
+xmlParser = ignorePi xmlNodeParser

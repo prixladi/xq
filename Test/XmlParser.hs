@@ -43,13 +43,13 @@ parseXmlWithPrologTest = do
 parseCommentedXmlTest :: Either String ()
 parseCommentedXmlTest = do
   let str = "<bookstore><book><!--testTest--><price>1</price></book><book><price>2</price></book></bookstore>"
-  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest",XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
+  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest", XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
   expectParsingSuccess str expected
 
 parseXmlWithProcessingInstructionsTest :: Either String ()
 parseXmlWithProcessingInstructionsTest = do
   let str = "<?pi aaaa ?><bookstore><book><!--testTest--><price>1</price><?pi aaaa ?></book><book><price>2<?pi aaaa ?></price></book><?pi aaaa ?></bookstore><?pi aaaa ?>"
-  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest",XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"]]]
+  let expected = XmlNode "bookstore" [] [XmlNode "book" [] [XmlComment "testTest", XmlNode "price" [] [XmlContent "1"], XmlProcessingInstruction "pi aaaa ?"], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2", XmlProcessingInstruction "pi aaaa ?"]], XmlProcessingInstruction "pi aaaa ?"]
   expectParsingSuccess str expected
 
 expectParsingSuccess :: String -> XmlValue -> Either String ()

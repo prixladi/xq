@@ -10,6 +10,7 @@ instance Serialize XmlValue where
   serialize :: XmlValue -> String
   serialize (XmlContent s) = s
   serialize (XmlComment s) = "<!--" ++ s ++ "-->"
+  serialize (XmlProcessingInstruction s) = "<?" ++ s ++ ">"
   serialize (XmlNode tag attrs children) =
     openingTag ++ intercalate "" (serialize <$> children) ++ closingTag
     where

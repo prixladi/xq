@@ -31,6 +31,7 @@ runEmptyXqTest = do
   let expected = [XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]]
 
   expectEq expected (runXq xq xml)
+
 runEmptyResultXqTest :: Either String ()
 runEmptyResultXqTest = do
   let xml = XmlNode "bookstore" [] [XmlNode "book" [] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
@@ -97,7 +98,7 @@ runXqWithAttributeSelectorsTest2 = do
 
 runXqWithAttributeSelectorsTest3 :: Either String ()
 runXqWithAttributeSelectorsTest3 = do
-  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1", XmlProcessingInstruction "pi aaaa ?"]], XmlProcessingInstruction "pi aaaa ?", XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
   let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" (Just "de")]]
   let expected = [XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
 
@@ -105,8 +106,8 @@ runXqWithAttributeSelectorsTest3 = do
 
 runXqWithAttributeSelectorsTest4 :: Either String ()
 runXqWithAttributeSelectorsTest4 = do
-  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "1", XmlProcessingInstruction "pi aaaa ?"], XmlProcessingInstruction "pi aaaa ?"], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
   let xq = [XqNode True [Tag WildcardTag, Attribute $ BasicAttribute "lang" Nothing], XqNode False [Tag $ PreciseTag "price"]]
-  let expected = [XmlNode "price" [] [XmlContent "1"],XmlNode "price" [] [XmlContent "2"]]
+  let expected = [XmlNode "price" [] [XmlContent "1", XmlProcessingInstruction "pi aaaa ?"], XmlNode "price" [] [XmlContent "2"]]
 
   expectEq expected (runXq xq xml)

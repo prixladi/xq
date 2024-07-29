@@ -2,6 +2,7 @@ module Lib.XqParser where
 
 import Control.Applicative
 import Lib.Parser
+import Lib.Utils
 import Lib.XmlParser
 
 type IsRecursive = Bool
@@ -35,7 +36,7 @@ positionSelectorParser =
 attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
   BasicAttribute
-    <$> (charParser '@' *> spanParser (\c -> c /= '=' && c /= ']'))
+    <$> (charParser '@' *> spanParser (noneOf [(== '>'), (== '"')]))
     <*> optional (charParser '=' *> attributeLiteralParser)
 
 selectorsParser :: Parser [Selector]
