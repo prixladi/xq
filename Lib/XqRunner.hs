@@ -30,7 +30,7 @@ matchNode (Position pos) len node = matchPosition pos len node
 filterNodes :: [Selector] -> [XmlValue] -> [XmlValue]
 filterNodes match xml = foldl foldBySelector xml match
   where
-    -- Then we need to assign number for every element in each iteration for positional matching
+    -- We need to assign number for every element in each iteration for positional matching
     foldBySelector x m = snd <$> filter (matchNode m (length x)) (numbered x)
 
 getChildrenNodes :: XmlValue -> [XmlValue]

@@ -2,9 +2,7 @@ module Lib.Utils where
 
 import Data.Char
 
--- | Works similar as 'GHC.List.span' but instead taking into context current just one current element it takes into account whole remaining string
---
--- ==== __Examples__
+-- | Works similar to the 'GHC.List.span' but instead of running predicate just one current element runs predicate for the whole remaining string
 --
 -- >>> spanList (/= "end") "start other end"
 -- ("start other ","end")
@@ -19,8 +17,6 @@ spanList func list@(x : xs) =
 
 -- | Removes whitespace from the beginning and the end of the string
 --
--- ==== __Examples__
---
 -- >>> trim "   test test     test         "
 -- "test test     test"
 trim :: String -> String
@@ -29,8 +25,6 @@ trim = f . f
     f = reverse . dropWhile isSpace
 
 -- | Returns copy of the list with tuples of elements and their order in the list starting with number 1
---
--- ==== __Examples__
 --
 -- >>> numbered ['a', 'b', 'c']
 -- [(1,'a'),(2,'b'),(3,'c')]
