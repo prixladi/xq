@@ -18,7 +18,9 @@ instance TestModule XqParserTestModule where
       ("parseBasicXq2", parseBasicXqTest2),
       ("parseXqWithSelector1", parseXqWithSelectorTest1),
       ("parseXqWithSelector2", parseXqWithSelectorTest2),
-      ("parseXqWithSelector3", parseXqWithSelectorTest3)
+      ("parseXqWithSelector3", parseXqWithSelectorTest3),
+      ("parseXqWithSelector4", parseXqWithSelectorTest4),
+      ("parseXqWithSelector5", parseXqWithSelectorTest5)
     ]
 
 parseInvalidXqTest1 :: Either String ()
@@ -76,6 +78,18 @@ parseXqWithSelectorTest3 :: Either String ()
 parseXqWithSelectorTest3 = do
   let str = "//*/*[position()>3]"
   let expected = [XqNode True [Tag WildcardTag], XqNode False [Tag WildcardTag, Position $ PrecisePosition Gt 3]]
+  expectSuccess str expected
+
+parseXqWithSelectorTest4 :: Either String ()
+parseXqWithSelectorTest4 = do
+  let str = "/*[@id]"
+  let expected = [XqNode False [Tag WildcardTag, Attribute (BasicAttribute "id" Nothing)]]
+  expectSuccess str expected
+
+parseXqWithSelectorTest5 :: Either String ()
+parseXqWithSelectorTest5 = do
+  let str = "/*[@id]/book[@id='12']"
+  let expected = [XqNode False [Tag WildcardTag, Attribute (BasicAttribute "id" Nothing)], XqNode False [Tag (PreciseTag "book"), Attribute (BasicAttribute "id" (Just "12"))]]
   expectSuccess str expected
 
 expectSuccess :: String -> [XqValue] -> Either String ()
