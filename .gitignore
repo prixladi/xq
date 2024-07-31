@@ -1,3 +1,4 @@
 *.hi
 *.o
-.output
+.output/*
+!.output/.gitkeep
