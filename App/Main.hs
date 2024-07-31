@@ -13,8 +13,8 @@ usage :: String
 usage =
   "Usage:    xq <xQuery> <xmlFilePath>\n\
   \          xq <xQuery> {xmlStdin}\n\
-  \Example:  xq \"//book/*\" \"./bookstore.xml\"\n\
-  \          cat \"./bookstore.xml\" | xq \"//book/*\""
+  \Example:  xq \"//book/*[@lang]\" \"./bookstore.xml\"\n\
+  \          cat \"./bookstore.xml\" | xq \"//book/*[@id='5']\""
 
 exit :: String -> IO ()
 exit err = do

@@ -65,7 +65,7 @@ Supported features can be seen in the examples below. More exhaustive documentat
 
 |                      | Expression              |
 | -------------------- | ----------------------- |
-| input[type="submit"] | //input[@type="submit"] |
+| input[type='submit'] | //input[@type='submit'] |
 | a[rel]               | //a[@rel]               |
 
 **Position selectors**
@@ -73,7 +73,7 @@ Supported features can be seen in the examples below. More exhaustive documentat
 | -------------------- | ----------------------- |
 | ul > li:first-of-type | //ul/li[1] |
 | ul > li:last-of-type | //ul/li[last()] |
-| ul[test="true"] > li[test="true"]:last-of-type | //ul[@test="true"]/li[@test="true"][last()] |
+| ul[test='true'] > li[test='true']:last-of-type | //ul[@test='true']/li[@test='true'][last()] |
 
 ## Known issues and limitations
 
