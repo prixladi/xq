@@ -19,11 +19,20 @@ data Selector = Position PositionSelector | Tag TagSelector | Attribute Attribut
 
 data XqValue = XqNode IsRecursive [Selector] deriving (Show, Eq)
 
-attributeLiteralParser :: Parser String
-attributeLiteralParser =
-  charParser '\''
-    *> spanParser (/= '\'')
-    <* charParser '\''
+xqParser :: Parser [XqValue]
+xqParser = many nodeParser
+
+nodeParser :: Parser XqValue
+nodeParser =
+  XqNode
+    <$> ((True <$ stringParser "//") <|> (False <$ charParser '/'))
+    <*> selectorsParser
+
+selectorsParser :: Parser [Selector]
+selectorsParser = notNull ((:) <$> tagSelector <*> many otherSelector)
+  where
+    tagSelector = Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*')
+    otherSelector = charParser '[' *> ((Position <$> positionSelectorParser) <|> (Attribute <$> attributeSelectorParser)) <* charParser ']'
 
 positionSelectorParser :: Parser PositionSelector
 positionSelectorParser =
@@ -36,20 +45,11 @@ positionSelectorParser =
 attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
   BasicAttribute
-    <$> (charParser '@' *> spanParser (noneOf [(== '>'), (== '"')]))
+    <$> (charParser '@' *> spanParser (noneOf [(== ']'), (== '=')]))
     <*> optional (charParser '=' *> attributeLiteralParser)
 
-selectorsParser :: Parser [Selector]
-selectorsParser = notNull ((:) <$> tagSelector <*> many otherSelector)
-  where
-    tagSelector = Tag <$> (PreciseTag <$> xmlNameParser <|> WildcardTag <$ charParser '*')
-    otherSelector = charParser '[' *> ((Position <$> positionSelectorParser) <|> (Attribute <$> attributeSelectorParser)) <* charParser ']'
-
-nodeParser :: Parser XqValue
-nodeParser =
-  XqNode
-    <$> ((True <$ stringParser "//") <|> (False <$ charParser '/'))
-    <*> selectorsParser
-
-xqParser :: Parser [XqValue]
-xqParser = many nodeParser
+attributeLiteralParser :: Parser String
+attributeLiteralParser =
+  charParser '\''
+    *> spanParser (/= '\'')
+    <* charParser '\''

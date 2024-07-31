@@ -42,60 +42,6 @@ instance Monad Parser where
       (input', a) <- p1 input
       runParser (f a) input'
 
--- | Wraps a list parser into the parser that makes sure that the parsed list is not empty
---
--- >>> runParser (notNull (pure ["a"])) ""
--- Just ("",["a"])
--- >>> runParser (notNull (pure [])) ""
--- Nothing
-notNull :: Parser [a] -> Parser [a]
-notNull (Parser p) =
-  Parser $ \input -> do
-    (input', xs) <- p input
-    if null xs
-      then Nothing
-      else Just (input', xs)
-
--- | Parses a character that meets the provided predicate
---
--- >>> runParser (charPredicateParser (/='>')) "a>b"
--- Just (">b",'a')
---
--- >>> runParser (charPredicateParser (/='>')) ">ab"
--- Nothing
-charPredicateParser :: (Char -> Bool) -> Parser Char
-charPredicateParser p = Parser f
-  where
-    f (y : ys) | p y = Just (ys, y)
-    f _ = Nothing
-
--- | Parses integer
---
--- >>> runParser (intParser) "25after"
--- Just ("after",25)
---
--- >>> runParser (charParser 'c') "after25"
--- Nothing
-intParser :: Parser Int
-intParser = read <$> notNull (spanParser isDigit)
-
--- | Parses provided character
---
--- >>> runParser (charParser 'c') "cafter"
--- Just ("after",'c')
---
--- >>> runParser (charParser 'c') "afterc"
--- Nothing
-charParser :: Char -> Parser Char
-charParser c = charPredicateParser (== c)
-
--- | Parses characters one by one into a string as long as predice for character returns True
---
--- >>> runParser (spanParser (/='>')) "before>after"
--- Just (">after","before")
-spanParser :: (Char -> Bool) -> Parser String
-spanParser f = Parser (Just . swap . span f)
-
 -- | Parses characters one by one into a string as long as predice for rest of the string returns True
 --
 -- >>> runParser (spanListParser (/="end")) "beforeend"
@@ -103,12 +49,12 @@ spanParser f = Parser (Just . swap . span f)
 spanListParser :: (String -> Bool) -> Parser String
 spanListParser f = Parser (Just . swap . spanList f)
 
--- | Parses whitespaces
+-- | Parses characters one by one into a string as long as predice for character returns True
 --
--- >>> runParser wsParser "    after"
--- Just ("after","    ")
-wsParser :: Parser String
-wsParser = spanParser isSpace
+-- >>> runParser (spanParser (/='>')) "before>after"
+-- Just (">after","before")
+spanParser :: (Char -> Bool) -> Parser String
+spanParser f = Parser (Just . swap . span f)
 
 -- | Parses character that can optionaly be surounded by whitespaces
 --
@@ -120,6 +66,13 @@ charWsParser c =
     <$> wsParser
     <*> charParser c
     <*> wsParser
+
+-- | Parses whitespaces
+--
+-- >>> runParser wsParser "    after"
+-- Just ("after","    ")
+wsParser :: Parser String
+wsParser = spanParser isSpace
 
 -- | Parses string literal surounded by double quotes
 --
@@ -143,3 +96,50 @@ stringLiteralParser =
 -- Nothing
 stringParser :: String -> Parser String
 stringParser = traverse charParser
+
+-- | Parses integer
+--
+-- >>> runParser (intParser) "25after"
+-- Just ("after",25)
+--
+-- >>> runParser (charParser 'c') "after25"
+-- Nothing
+intParser :: Parser Int
+intParser = read <$> notNull (spanParser isDigit)
+
+-- | Parses provided character
+--
+-- >>> runParser (charParser 'c') "cafter"
+-- Just ("after",'c')
+--
+-- >>> runParser (charParser 'c') "afterc"
+-- Nothing
+charParser :: Char -> Parser Char
+charParser c = charPredicateParser (== c)
+
+-- | Parses a character that meets the provided predicate
+--
+-- >>> runParser (charPredicateParser (/='>')) "a>b"
+-- Just (">b",'a')
+--
+-- >>> runParser (charPredicateParser (/='>')) ">ab"
+-- Nothing
+charPredicateParser :: (Char -> Bool) -> Parser Char
+charPredicateParser p = Parser f
+  where
+    f (y : ys) | p y = Just (ys, y)
+    f _ = Nothing
+
+-- | Wraps a list parser into the parser that makes sure that the parsed list is not empty
+--
+-- >>> runParser (notNull (pure ["a"])) ""
+-- Just ("",["a"])
+-- >>> runParser (notNull (pure [])) ""
+-- Nothing
+notNull :: Parser [a] -> Parser [a]
+notNull (Parser p) =
+  Parser $ \input -> do
+    (input', xs) <- p input
+    if null xs
+      then Nothing
+      else Just (input', xs)

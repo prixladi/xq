@@ -17,19 +17,23 @@ data XmlValue
   | XmlNode String [Attribute] [XmlValue]
   deriving (Show, Eq)
 
-xmlNameParser :: Parser String
-xmlNameParser =
-  (:)
-    <$> charPredicateParser (anyOf [isLetter, (== '_')])
-    <*> spanParser (anyOf [isLetter, isNumber, (== '-'), (== '_'), (== '.')])
+xmlParser :: Parser XmlValue
+-- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always need to be one root node
+xmlParser = ignorePi xmlNodeParser
 
-attributeParser :: Parser Attribute
-attributeParser =
-  (,)
-    <$ wsParser
-    <*> xmlNameParser
-    <* charWsParser '='
-    <*> stringLiteralParser
+xmlValueParser :: Parser XmlValue
+xmlValueParser =
+  xmlCommentParser
+    <|> xmlProcessingInstructionsParser
+    <|> xmlNodeParser
+    <|> xmlContentParser
+
+xmlNodeParser :: Parser XmlValue
+xmlNodeParser = do
+  (tag, attributes) <- tagParser
+  inner <- many xmlValueParser
+  closingTagParser tag
+  pure (XmlNode tag attributes inner)
 
 tagParser :: Parser (String, [Attribute])
 tagParser =
@@ -46,6 +50,20 @@ closingTagParser a =
     *> stringParser "</"
     *> stringParser a
     <* charWsParser '>'
+
+xmlNameParser :: Parser String
+xmlNameParser =
+  (:)
+    <$> charPredicateParser (anyOf [isLetter, (== '_')])
+    <*> spanParser (anyOf [isLetter, isNumber, (== '-'), (== '_'), (== '.')])
+
+attributeParser :: Parser Attribute
+attributeParser =
+  (,)
+    <$ wsParser
+    <*> xmlNameParser
+    <* charWsParser '='
+    <*> stringLiteralParser
 
 xmlContentParser :: Parser XmlValue
 xmlContentParser = XmlContent . trim <$> notNull (spanParser (/= '<'))
@@ -67,24 +85,6 @@ xmlProcessingInstructionsParser =
   where
     contentParts = notNull (spanParser $ noneOf [(== '>'), (== '"')]) <|> stringLiteralParser
 
-xmlNodeParser :: Parser XmlValue
-xmlNodeParser = do
-  (tag, attributes) <- tagParser
-  inner <- many xmlValueParser
-  closingTagParser tag
-  pure (XmlNode tag attributes inner)
-
-xmlValueParser :: Parser XmlValue
-xmlValueParser =
-  xmlCommentParser
-    <|> xmlProcessingInstructionsParser
-    <|> xmlNodeParser
-    <|> xmlContentParser
-
 -- | Combinator that wraps a parser with parsers that ignore surrounding processing instructions
 ignorePi :: Parser a -> Parser a
 ignorePi p = many xmlProcessingInstructionsParser *> p <* many xmlProcessingInstructionsParser
-
-xmlParser :: Parser XmlValue
--- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always need to be one root node
-xmlParser = ignorePi xmlNodeParser

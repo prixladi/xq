@@ -6,6 +6,10 @@ import Lib.XmlParser
 class Serialize g where
   serialize :: g -> String
 
+instance Serialize [XmlValue] where
+  serialize :: [XmlValue] -> String
+  serialize values = intercalate "\n" (serialize <$> values)
+  
 instance Serialize XmlValue where
   serialize :: XmlValue -> String
   serialize (XmlContent s) = s
@@ -18,6 +22,3 @@ instance Serialize XmlValue where
       openingTag = "<" ++ tag ++ attributes ++ ">"
       closingTag = "</" ++ tag ++ ">"
 
-instance Serialize [XmlValue] where
-  serialize :: [XmlValue] -> String
-  serialize values = intercalate "\n" (serialize <$> values)
