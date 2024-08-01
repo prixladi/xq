@@ -26,10 +26,10 @@ getChildrenNodes (XmlNode _ _ c) = filter isNode c
 getChildrenNodes _ = []
 
 filterNodes :: [Selector] -> [XmlValue] -> [XmlValue]
-filterNodes match xml = foldl foldBySelector xml match
+filterNodes selectors xml = foldl foldBySelector xml selectors
   where
     -- We need to assign number for every element in each iteration for positional matching
-    foldBySelector x m = snd <$> filter (matchNode m (length x)) (numbered x)
+    foldBySelector x s = snd <$> filter (matchNode s (length x)) (numbered x)
 
 matchNode :: Selector -> Int -> (Int, XmlValue) -> Bool
 matchNode (Tag tag) _ (_, node) = matchTag tag node

@@ -18,7 +18,7 @@ data XmlValue
   deriving (Show, Eq)
 
 xmlParser :: Parser XmlValue
--- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always need to be one root node
+-- We start with 'xmlNodeParser' and not 'xmlValueParser' because there always needs to be one root node
 xmlParser = ignorePi xmlNodeParser
 
 xmlValueParser :: Parser XmlValue
@@ -69,19 +69,20 @@ xmlContentParser :: Parser XmlValue
 xmlContentParser = XmlContent . trim <$> notNull (spanParser (/= '<'))
 
 xmlCommentParser :: Parser XmlValue
-xmlCommentParser = XmlComment <$> content
-  where
-    content = stringParser "<!--" *> spanListParser (not . isPrefixOf "-->") <* stringParser "-->"
+xmlCommentParser =
+  XmlComment
+    <$ stringParser "<!--"
+    <*> spanListParser (not . isPrefixOf "-->")
+    <* stringParser "-->"
 
 xmlProcessingInstructionsParser :: Parser XmlValue
 xmlProcessingInstructionsParser =
   XmlProcessingInstruction
-    <$> ( wsParser
-            *> stringParser "<?"
-            *> (unwords <$> many contentParts)
-            <* charParser '>'
-            <* wsParser
-        )
+    <$ wsParser
+    <* stringParser "<?"
+    <*> (unwords <$> many contentParts)
+    <* charParser '>'
+    <* wsParser
   where
     contentParts = notNull (spanParser $ noneOf [(== '>'), (== '"')]) <|> stringLiteralParser
 
