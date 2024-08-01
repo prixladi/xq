@@ -134,6 +134,7 @@ charPredicateParser p = Parser f
 --
 -- >>> runParser (notNull (pure ["a"])) ""
 -- Just ("",["a"])
+--
 -- >>> runParser (notNull (pure [])) ""
 -- Nothing
 notNull :: Parser [a] -> Parser [a]
