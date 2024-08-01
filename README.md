@@ -52,28 +52,28 @@ Supported features can be seen in the examples below. More exhaustive documentat
 
 **Descendant selectors**
 
-|              | Expression |
-| ------------ | ---------- |
-| div          | //div      |
-| div a        | //div//a   |
-| div \*       | //div//\*  |
-| div > \*     | //div/\*   |
-| :root > body | /body      |
-| :root        | /\*        |
+| XQuery    | CSS selector equivalent |
+| --------- | ----------------------- |
+| //div     | div                     |
+| //div//a  | div a                   |
+| //div//\* | div \*                  |
+| //div/\*  | div > \*                |
+| /body     | :root > body            |
+| /\*       | :root                   |
 
 **Attribute selectors**
 
-|                      | Expression              |
-| -------------------- | ----------------------- |
-| input[type='submit'] | //input[@type='submit'] |
-| a[rel]               | //a[@rel]               |
+| XQuery                  | CSS selector equivalent |
+| ----------------------- | ----------------------- |
+| //input[@type='submit'] | input[type='submit']    |
+| //a[@rel]               | a[rel]                  |
 
 **Position selectors**
-| | Expression |
+| XQuery | CSS selector equivalent |
 | -------------------- | ----------------------- |
-| ul > li:first-of-type | //ul/li[1] |
-| ul > li:last-of-type | //ul/li[last()] |
-| ul[test='true'] > li[test='true']:last-of-type | //ul[@test='true']/li[@test='true'][last()] |
+| //ul/li[1] | ul > li:first-of-type |
+| //ul/li[last()] | ul > li:last-of-type |
+| //ul[@test='true']/li[@test='true'][last()] | ul[test='true'] > li[test='true']:last-of-type |
 
 ## Known issues and limitations
 
