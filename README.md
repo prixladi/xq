@@ -87,6 +87,7 @@ Some of the issues and limitations that are known to the maintainer/developers.
    - _XML tag with duplicate attributes is not considered invalid but it should be._
    - _Tags that start with the string **'xml'** are considered valid_
    - _XML prelude is not validated at all and can be included anywhere in the document_
+   - _XML tag/attribute can contain multiple namespace indicators and can end with namespace indicator (:)_
 
    _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
 

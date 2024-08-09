@@ -55,7 +55,7 @@ xmlNameParser :: Parser String
 xmlNameParser =
   (:)
     <$> charPredicateParser (anyOf [isLetter, (== '_')])
-    <*> spanParser (anyOf [isLetter, isNumber, (== '-'), (== '_'), (== '.')])
+    <*> spanParser (anyOf [isLetter, isNumber, (== '-'), (== '_'), (== '.'), (== ':')])
 
 attributeParser :: Parser Attribute
 attributeParser =
@@ -84,7 +84,7 @@ xmlProcessingInstructionsParser =
     <* charParser '>'
     <* wsParser
   where
-    contentParts = notNull (spanParser $ noneOf [(== '>'), (== '"')]) <|> stringLiteralParser
+    contentParts = (notNull . spanParser . noneOf) [(== '>'), (== '"')] <|> stringLiteralParser
 
 -- | Combinator that wraps a parser with parsers that ignore surrounding processing instructions
 ignorePi :: Parser a -> Parser a
