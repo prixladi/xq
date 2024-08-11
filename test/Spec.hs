@@ -1,12 +1,12 @@
-module Test.Main where
+module Main (main) where
 
-import Test.Helpers
-import Test.XmlParser
-import Test.XqParser
-import Test.XqRunner
+import Helpers
+import XmlParserTest
+import XqParserTest
+import XqRunnerTest
 
 printResult :: (String, Either String ()) -> IO ()
-printResult (name, Left error) = putStrLn $ "  " ++ name ++ " - Error: " ++ error
+printResult (name, Left err) = putStrLn $ "  " ++ name ++ " - Error: " ++ err
 printResult (name, Right ()) = putStrLn $ "  " ++ name ++ " - Success"
 
 main :: IO ()

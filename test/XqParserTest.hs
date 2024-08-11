@@ -1,8 +1,10 @@
-module Test.XqParser where
+{-# LANGUAGE InstanceSigs #-}
 
-import Lib.Parser
-import Lib.XqParser
-import Test.Helpers
+module XqParserTest (XqParserTestModule (..)) where
+
+import Helpers
+import Parser
+import XqParser
 
 data XqParserTestModule = XqParserTestModule
 

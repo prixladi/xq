@@ -1,4 +1,4 @@
-module Lib.Utils where
+module Utils (spanList, trim, numbered, allOf, anyOf, noneOf) where
 
 import Data.Char
 
@@ -36,12 +36,12 @@ numbered = f 1
 
 -- | Combines list of predicate functions that 'a' and returns predicate function that resolves if all of the input predicates are true
 allOf :: [a -> Bool] -> a -> Bool
-allOf pred a = all (\p -> p a) pred
+allOf predicate a = all (\p -> p a) predicate
 
 -- | Combines list of predicate functions that 'a' and returns predicate function that resolves if any of the input predicates are true
 anyOf :: [a -> Bool] -> a -> Bool
-anyOf pred a = any (\p -> p a) pred
+anyOf predicate a = any (\p -> p a) predicate
 
 -- | Combines list of predicate functions that 'a' and returns predicate function that resolves if none of the input predicates are true
 noneOf :: [a -> Bool] -> a -> Bool
-noneOf pred a = all (\p -> (not . p) a) pred
+noneOf predicate a = all (\p -> (not . p) a) predicate

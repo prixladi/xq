@@ -1,9 +1,18 @@
-module Lib.XqParser where
+module XqParser
+  ( Cmp (..),
+    PositionSelector (..),
+    TagSelector (..),
+    AttributeSelector (..),
+    Selector (..),
+    XqValue (..),
+    xqParser,
+  )
+where
 
 import Control.Applicative
-import Lib.Parser
-import Lib.Utils
-import Lib.XmlParser
+import Parser
+import Utils
+import XmlParser
 
 type IsRecursive = Bool
 

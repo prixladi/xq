@@ -1,9 +1,24 @@
-module Lib.Parser where
+{-# LANGUAGE InstanceSigs #-}
 
-import Control.Applicative
-import Data.Char
-import Data.Tuple
-import Lib.Utils
+module Parser
+  ( Parser (..),
+    notNull,
+    charPredicateParser,
+    charParser,
+    stringParser,
+    stringLiteralParser,
+    wsParser,
+    charWsParser,
+    intParser,
+    spanParser,
+    spanListParser,
+  )
+where
+
+import Control.Applicative 
+import Data.Char 
+import Data.Tuple 
+import Utils 
 
 newtype Parser a = Parser
   { runParser :: String -> Maybe (String, a)
@@ -62,7 +77,7 @@ spanParser f = Parser (Just . swap . span f)
 -- Just ("p","    g      ")
 charWsParser :: Char -> Parser String
 charWsParser c =
-  (\a b c -> a ++ [b] ++ c)
+  (\x y z -> x ++ [y] ++ z)
     <$> wsParser
     <*> charParser c
     <*> wsParser
