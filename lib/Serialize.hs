@@ -1,7 +1,10 @@
-module Lib.Serialize where
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
 
-import Data.List
-import Lib.XmlParser
+module Serialize (Serialize (..)) where
+
+import Data.List (intercalate)
+import XmlParser
 
 class Serialize g where
   serialize :: g -> String
@@ -9,7 +12,7 @@ class Serialize g where
 instance Serialize [XmlValue] where
   serialize :: [XmlValue] -> String
   serialize values = intercalate "\n" (serialize <$> values)
-  
+
 instance Serialize XmlValue where
   serialize :: XmlValue -> String
   serialize (XmlContent s) = s
@@ -21,4 +24,3 @@ instance Serialize XmlValue where
       attributes = if null attrs then "" else " " ++ unwords ((\(k, v) -> k ++ "=\"" ++ v ++ "\"") <$> attrs)
       openingTag = "<" ++ tag ++ attributes ++ ">"
       closingTag = "</" ++ tag ++ ">"
-

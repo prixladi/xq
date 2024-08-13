@@ -4,24 +4,34 @@
 
 ## Project structure
 
-- `/App` - Command line application entrypoint
-- `/Lib` - Core functionality of `xq`
-- `/Test` - Unit tests
+- `/app` - Command line application entry point
+- `/lib` - Core functionality of `xq`
+- `/test` - Unit tests
 
 ## Building & Installing
 
-`xq` does not have any dependency so all you need is a [Compiler](https://www.haskell.org/ghc/).
+`xq` requires:
 
-The following command will build the project into the `.output` folder:
+- [GHC](https://www.haskell.org/ghc/) (Compiler)
+- [Cabal](https://www.haskell.org/cabal/) (Build system)
+- [Stack](https://docs.haskellstack.org/en/stable/#__tabbed_1_1) (Build system)
+
+You can run your program directly using stack using:
 
 ```sh
-ghc ./App/Main.hs -main-is App.Main -outputdir "./.output" -o "./.output/xq"
+stack run
 ```
 
-This will create program binary `./.output/xq` that can be moved into your bin directory, eg.
+This is just for development and testing purposes. If you want to install xq on your system or run benchmarks you should build the binary:
 
 ```sh
-mv ./.output/xq ~/bin/
+stack build
+```
+
+and copy it to your `/bin` folder, eg.:
+
+```sh
+cp $(stack path --local-install-root)/bin/xq-exe ~/bin/xq
 ```
 
 ## Usage
@@ -87,22 +97,16 @@ Some of the issues and limitations that are known to the maintainer/developers.
    - _XML tag with duplicate attributes is not considered invalid but it should be._
    - _Tags that start with the string **'xml'** are considered valid_
    - _XML prelude is not validated at all and can be included anywhere in the document_
-   - _XML tag/attribute can contain multiple namespace indicators and can end with namespace indicator (:)_
+   - _XML tag/attribute can contain multiple namespace indicators and can end with a namespace indicator (:)_
 
    _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
 
 ## Unit tests
 
-Basic `xq` use cases are written as tests in folder `/Test`.
+Basic `xq` use cases are written as tests in folder `/test`.
 
-The tests can be built using
-
-```sh
-ghc ./Test/Main.hs -main-is Test.Main -outputdir "./.output" -o "./.output/test"
-```
-
-command and subsequently run using
+The tests can be started using
 
 ```sh
-./.output/test
+stack test
 ```

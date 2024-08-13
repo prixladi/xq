@@ -1,12 +1,21 @@
-module Lib.XmlParser where
+module XmlParser (XmlValue (..), xmlNameParser, xmlParser) where
 
 import Control.Applicative
-import Control.Monad
 import Data.Char
-import Data.Functor
-import Data.List
-import Lib.Parser
-import Lib.Utils
+import Data.List (isPrefixOf)
+import Parser
+  ( Parser,
+    charParser,
+    charPredicateParser,
+    charWsParser,
+    notNull,
+    spanListParser,
+    spanParser,
+    stringLiteralParser,
+    stringParser,
+    wsParser,
+  )
+import Utils (anyOf, noneOf, trim)
 
 type Attribute = (String, String)
 
@@ -32,7 +41,7 @@ xmlNodeParser :: Parser XmlValue
 xmlNodeParser = do
   (tag, attributes) <- tagParser
   inner <- many xmlValueParser
-  closingTagParser tag
+  _ <- closingTagParser tag
   pure (XmlNode tag attributes inner)
 
 tagParser :: Parser (String, [Attribute])

@@ -1,9 +1,8 @@
-module Lib.XqRunner where
+module XqRunner (runXq) where
 
-import Control.Monad
-import Lib.Utils
-import Lib.XmlParser
-import Lib.XqParser
+import Utils
+import XmlParser
+import XqParser
 
 runXq :: [XqValue] -> XmlValue -> [XmlValue]
 runXq [] xml = [xml]

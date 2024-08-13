@@ -1,4 +1,3 @@
-*.hi
-*.o
-.output/*
-!.output/.gitkeep
+.stack-work/
+*~
+.bin

@@ -1,10 +1,11 @@
-module Test.XqRunner where
+{-# LANGUAGE InstanceSigs #-}
 
-import Lib.Parser
-import Lib.XmlParser
-import Lib.XqParser
-import Lib.XqRunner
-import Test.Helpers
+module XqRunnerTest (XqRunnerTestModule (..)) where
+
+import Helpers
+import XmlParser
+import XqParser
+import XqRunner
 
 data XqRunnerTestModule = XqRunnerTestModule
 

@@ -1,13 +1,12 @@
-module App.Main where
+module Main (main) where
 
-import Control.Monad
-import Lib.Parser
-import Lib.Serialize
-import Lib.XmlParser
-import Lib.XqParser
-import Lib.XqRunner
-import System.Directory.Internal.Prelude
+import Parser
+import Serialize
+import System.Environment
 import System.Exit
+import XmlParser
+import XqParser
+import XqRunner
 
 main :: IO ()
 main = do
