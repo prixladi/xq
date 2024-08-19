@@ -15,10 +15,10 @@ module Parser
   )
 where
 
-import Control.Applicative 
-import Data.Char 
-import Data.Tuple 
-import Utils 
+import Control.Applicative
+import Data.Char
+import Data.Tuple
+import Utils
 
 newtype Parser a = Parser
   { runParser :: String -> Maybe (String, a)
@@ -57,39 +57,39 @@ instance Monad Parser where
       (input', a) <- p1 input
       runParser (f a) input'
 
--- | Parses characters one by one into a string as long as predice for rest of the string returns True
+-- | Parses characters one by one into a string as long as predicate for rest of the string returns True
 --
 -- >>> runParser (spanListParser (/="end")) "beforeend"
 -- Just ("end","before")
 spanListParser :: (String -> Bool) -> Parser String
 spanListParser f = Parser (Just . swap . spanList f)
 
--- | Parses characters one by one into a string as long as predice for character returns True
+-- | Parses characters one by one into a string as long as predicate for character returns True
 --
 -- >>> runParser (spanParser (/='>')) "before>after"
 -- Just (">after","before")
 spanParser :: (Char -> Bool) -> Parser String
 spanParser f = Parser (Just . swap . span f)
 
--- | Parses character that can optionaly be surounded by whitespaces
+-- | Parses character that can optionally be surrounded by whitespace
 --
 -- >>> runParser (charWsParser 'g') "    g      p"
 -- Just ("p","    g      ")
 charWsParser :: Char -> Parser String
 charWsParser c =
-  (\x y z -> x ++ [y] ++ z)
+  (\x y z -> x ++ y : z)
     <$> wsParser
     <*> charParser c
     <*> wsParser
 
--- | Parses whitespaces
+-- | Parses whitespace
 --
 -- >>> runParser wsParser "    after"
 -- Just ("after","    ")
 wsParser :: Parser String
 wsParser = spanParser isSpace
 
--- | Parses string literal surounded by double quotes
+-- | Parses string literal surrounded by double quotes
 --
 -- >>> runParser stringLiteralParser "\"str\""
 -- Just ("","str")

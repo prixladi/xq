@@ -12,10 +12,10 @@ runXq query xml = foldl foldValue [XmlNode "root" [] [xml]] query
 
 runXqValue :: XqValue -> XmlValue -> [XmlValue]
 runXqValue (XqNode False s) xml = filterNodes s (getChildrenNodes xml)
-runXqValue (XqNode True s) xml = currentResult ++ childrenResult
+runXqValue xq@(XqNode True s) xml = currentResult ++ childrenResult
   where
     currentResult = runXqValue (XqNode False s) xml
-    childrenResult = getChildrenNodes xml >>= runXqValue (XqNode True s)
+    childrenResult = getChildrenNodes xml >>= runXqValue xq
 
 getChildrenNodes :: XmlValue -> [XmlValue]
 getChildrenNodes (XmlNode _ _ c) = filter isNode c
