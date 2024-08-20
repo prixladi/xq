@@ -16,6 +16,7 @@ module Parser
 where
 
 import Control.Applicative
+import Control.Monad
 import Data.Char
 import Data.Tuple
 import Utils
@@ -153,9 +154,7 @@ charPredicateParser p = Parser f
 -- >>> runParser (notNull (pure [])) ""
 -- Nothing
 notNull :: Parser [a] -> Parser [a]
-notNull (Parser p) =
-  Parser $ \input -> do
-    (input', xs) <- p input
-    if null xs
-      then Nothing
-      else Just (input', xs)
+notNull (Parser p) = Parser (p >=> f)
+  where
+    f x | (null . snd) x = Nothing
+    f x = Just x
