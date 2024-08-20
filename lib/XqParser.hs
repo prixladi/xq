@@ -1,9 +1,12 @@
+{-# LANGUAGE ExistentialQuantification #-}
+
 module XqParser
   ( Cmp (..),
     PositionSelector (..),
     TagSelector (..),
     AttributeSelector (..),
-    Selector (..),
+    ContentSelector (..),
+    XqSelector (..),
     XqValue (..),
     xqParser,
   )
@@ -16,7 +19,7 @@ import XmlParser
 
 type IsRecursive = Bool
 
-data Cmp = Eq | Gt | Lt deriving (Show, Eq)
+data Cmp = Eq | NotEq | Gt | Lt deriving (Show, Eq)
 
 data PositionSelector = PrecisePosition Cmp Int | LastPosition deriving (Show, Eq)
 
@@ -24,9 +27,16 @@ data TagSelector = WildcardTag | PreciseTag String deriving (Show, Eq)
 
 data AttributeSelector = BasicAttribute String (Maybe String) deriving (Show, Eq)
 
-data Selector = Tag TagSelector | Position PositionSelector | Attribute AttributeSelector deriving (Show, Eq)
+data ContentSelector = StringContent Cmp String | NumberContent Cmp Int deriving (Show, Eq)
 
-data XqValue = XqNode IsRecursive [Selector] deriving (Show, Eq)
+data XqSelector
+  = XqTag TagSelector
+  | XqPosition PositionSelector
+  | XqAttribute AttributeSelector
+  | XqContent ContentSelector
+  deriving (Show, Eq)
+
+data XqValue = XqNode IsRecursive [XqSelector] deriving (Show, Eq)
 
 xqParser :: Parser [XqValue]
 xqParser = many nodeParser
@@ -37,31 +47,46 @@ nodeParser =
     <$> ((True <$ stringParser "//") <|> (False <$ charParser '/'))
     <*> selectorsParser
 
-selectorsParser :: Parser [Selector]
+selectorsParser :: Parser [XqSelector]
 selectorsParser = notNull ((:) <$> tagSelector <*> many otherSelector)
   where
-    tagSelector = Tag <$> ((PreciseTag <$> xmlNameParser) <|> (WildcardTag <$ charParser '*'))
+    tagSelector = XqTag <$> ((PreciseTag <$> xmlNameParser) <|> (WildcardTag <$ charParser '*'))
     otherSelector = charParser '[' *> selectorParser <* charParser ']'
 
-selectorParser :: Parser Selector
-selectorParser = (Position <$> positionSelectorParser) <|> (Attribute <$> attributeSelectorParser)
+selectorParser :: Parser XqSelector
+selectorParser =
+  (XqPosition <$> positionSelectorParser)
+    <|> (XqAttribute <$> attributeSelectorParser)
+    <|> (XqContent <$> contentSelectorParser)
 
 positionSelectorParser :: Parser PositionSelector
 positionSelectorParser =
   (PrecisePosition Eq <$> intParser)
-    <|> (PrecisePosition Eq <$> (stringParser "position()=" *> intParser))
-    <|> (PrecisePosition Lt <$> (stringParser "position()<" *> intParser))
-    <|> (PrecisePosition Gt <$> (stringParser "position()>" *> intParser))
+    <|> (PrecisePosition <$ stringParser "position()" <*> cmpParser <*> intParser)
     <|> (LastPosition <$ stringParser "last()")
 
 attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
   BasicAttribute
     <$> (charParser '@' *> spanParser (noneOf [(== ']'), (== '=')]))
-    <*> optional (charParser '=' *> attributeLiteralParser)
+    <*> optional (charParser '=' *> xqStringLiteralParser)
 
-attributeLiteralParser :: Parser String
-attributeLiteralParser =
+contentSelectorParser :: Parser ContentSelector
+contentSelectorParser =
+  stringParser "text()"
+    *> ( NumberContent <$> cmpParser <*> intParser
+           <|> StringContent <$> cmpParser <*> xqStringLiteralParser
+       )
+
+cmpParser :: Parser Cmp
+cmpParser =
+  Eq <$ charParser '='
+    <|> NotEq <$ stringParser "!="
+    <|> Gt <$ stringParser ">"
+    <|> Lt <$ stringParser "<"
+
+xqStringLiteralParser :: Parser String
+xqStringLiteralParser =
   charParser '\''
     *> spanParser (/= '\'')
     <* charParser '\''

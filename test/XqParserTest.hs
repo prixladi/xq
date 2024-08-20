@@ -18,11 +18,15 @@ instance TestModule XqParserTestModule where
       ("parseEmptyXq", parseEmptyXqTest),
       ("parseBasicXq1", parseBasicXqTest1),
       ("parseBasicXq2", parseBasicXqTest2),
-      ("parseXqWithSelector1", parseXqWithSelectorTest1),
-      ("parseXqWithSelector2", parseXqWithSelectorTest2),
-      ("parseXqWithSelector3", parseXqWithSelectorTest3),
-      ("parseXqWithSelector4", parseXqWithSelectorTest4),
-      ("parseXqWithSelector5", parseXqWithSelectorTest5)
+      ("parseXqWithPositionSelector1", parseXqWithPositionSelectorTest1),
+      ("parseXqWithPositionSelector2", parseXqWithPositionSelectorTest2),
+      ("parseXqWithPositionSelector2", parseXqWithPositionSelectorTest3),
+      ("parseXqWithAttributeSelector1", parseXqWithAttributeSelectorTest1),
+      ("parseXqWithAttributeSelector2", parseXqWithAttributeSelectorTest2),
+      ("parseXqWithContentSelector1", parseXqWithContentSelectorTest1),
+      ("parseXqWithContentSelector1", parseXqWithContentSelectorTest2),
+      ("parseXqWithContentSelector1", parseXqWithContentSelectorTest3),
+      ("parseXqWithContentSelector1", parseXqWithContentSelectorTest4)
     ]
 
 parseInvalidXqTest1 :: Either String ()
@@ -43,7 +47,7 @@ parseInvalidXqTest3 = do
 parseXqWithRemainderTest :: Either String ()
 parseXqWithRemainderTest = do
   let str = "/book//{remainder}"
-  let expected = [XqNode False [Tag $ PreciseTag "book"]]
+  let expected = [XqNode False [XqTag $ PreciseTag "book"]]
   expectParsingRemainder str "//{remainder}" expected
 
 parseEmptyXqTest :: Either String ()
@@ -55,43 +59,67 @@ parseEmptyXqTest = do
 parseBasicXqTest1 :: Either String ()
 parseBasicXqTest1 = do
   let str = "/book"
-  let expected = [XqNode False [Tag $ PreciseTag "book"]]
+  let expected = [XqNode False [XqTag $ PreciseTag "book"]]
   expectSuccess str expected
 
 parseBasicXqTest2 :: Either String ()
 parseBasicXqTest2 = do
   let str = "/book//*//price/*"
-  let expected = [XqNode False [Tag $ PreciseTag "book"], XqNode True [Tag WildcardTag], XqNode True [Tag $ PreciseTag "price"], XqNode False [Tag WildcardTag]]
+  let expected = [XqNode False [XqTag $ PreciseTag "book"], XqNode True [XqTag WildcardTag], XqNode True [XqTag $ PreciseTag "price"], XqNode False [XqTag WildcardTag]]
   expectSuccess str expected
 
-parseXqWithSelectorTest1 :: Either String ()
-parseXqWithSelectorTest1 = do
+parseXqWithPositionSelectorTest1 :: Either String ()
+parseXqWithPositionSelectorTest1 = do
   let str = "/book[position()>3]"
-  let expected = [XqNode False [Tag $ PreciseTag "book", Position $ PrecisePosition Gt 3]]
+  let expected = [XqNode False [XqTag $ PreciseTag "book", XqPosition $ PrecisePosition Gt 3]]
   expectSuccess str expected
 
-parseXqWithSelectorTest2 :: Either String ()
-parseXqWithSelectorTest2 = do
+parseXqWithPositionSelectorTest2 :: Either String ()
+parseXqWithPositionSelectorTest2 = do
   let str = "//*[last()]"
-  let expected = [XqNode True [Tag WildcardTag, Position LastPosition]]
+  let expected = [XqNode True [XqTag WildcardTag, XqPosition LastPosition]]
   expectSuccess str expected
 
-parseXqWithSelectorTest3 :: Either String ()
-parseXqWithSelectorTest3 = do
+parseXqWithPositionSelectorTest3 :: Either String ()
+parseXqWithPositionSelectorTest3 = do
   let str = "//*/*[position()>3]"
-  let expected = [XqNode True [Tag WildcardTag], XqNode False [Tag WildcardTag, Position $ PrecisePosition Gt 3]]
+  let expected = [XqNode True [XqTag WildcardTag], XqNode False [XqTag WildcardTag, XqPosition $ PrecisePosition Gt 3]]
   expectSuccess str expected
 
-parseXqWithSelectorTest4 :: Either String ()
-parseXqWithSelectorTest4 = do
+parseXqWithAttributeSelectorTest1 :: Either String ()
+parseXqWithAttributeSelectorTest1 = do
   let str = "/*[@id]"
-  let expected = [XqNode False [Tag WildcardTag, Attribute (BasicAttribute "id" Nothing)]]
+  let expected = [XqNode False [XqTag WildcardTag, XqAttribute (BasicAttribute "id" Nothing)]]
   expectSuccess str expected
 
-parseXqWithSelectorTest5 :: Either String ()
-parseXqWithSelectorTest5 = do
+parseXqWithAttributeSelectorTest2 :: Either String ()
+parseXqWithAttributeSelectorTest2 = do
   let str = "/*[@id]/book[@id='12']"
-  let expected = [XqNode False [Tag WildcardTag, Attribute (BasicAttribute "id" Nothing)], XqNode False [Tag (PreciseTag "book"), Attribute (BasicAttribute "id" (Just "12"))]]
+  let expected = [XqNode False [XqTag WildcardTag, XqAttribute (BasicAttribute "id" Nothing)], XqNode False [XqTag (PreciseTag "book"), XqAttribute (BasicAttribute "id" (Just "12"))]]
+  expectSuccess str expected
+
+parseXqWithContentSelectorTest1 :: Either String ()
+parseXqWithContentSelectorTest1 = do
+  let str = "/bookstore/book/title[text()='Haskell']"
+  let expected = [XqNode False [XqTag (PreciseTag "bookstore")], XqNode False [XqTag (PreciseTag "book")], XqNode False [XqTag (PreciseTag "title"), XqContent (StringContent Eq "Haskell")]]
+  expectSuccess str expected
+
+parseXqWithContentSelectorTest2 :: Either String ()
+parseXqWithContentSelectorTest2 = do
+  let str = "/bookstore/book/price[text()>100]"
+  let expected = [XqNode False [XqTag (PreciseTag "bookstore")], XqNode False [XqTag (PreciseTag "book")], XqNode False [XqTag (PreciseTag "price"), XqContent (NumberContent Gt 100)]]
+  expectSuccess str expected
+
+parseXqWithContentSelectorTest3 :: Either String ()
+parseXqWithContentSelectorTest3 = do
+  let str = "/bookstore/book/price[text()!=1]"
+  let expected = [XqNode False [XqTag (PreciseTag "bookstore")], XqNode False [XqTag (PreciseTag "book")], XqNode False [XqTag (PreciseTag "price"), XqContent (NumberContent NotEq 1)]]
+  expectSuccess str expected
+
+parseXqWithContentSelectorTest4 :: Either String ()
+parseXqWithContentSelectorTest4 = do
+  let str = "/bookstore[text()!='corner']/book/price[text()<1000]"
+  let expected = [XqNode False [XqTag (PreciseTag "bookstore"), XqContent (StringContent NotEq "corner")], XqNode False [XqTag (PreciseTag "book")], XqNode False [XqTag (PreciseTag "price"), XqContent (NumberContent Lt 1000)]]
   expectSuccess str expected
 
 expectSuccess :: String -> [XqValue] -> Either String ()

@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
+        "foldl",
+        "Monoid",
         "unwords"
     ]
 }

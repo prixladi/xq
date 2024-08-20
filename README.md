@@ -85,21 +85,40 @@ Supported features can be seen in the examples below. More exhaustive documentat
 | //ul/li[last()] | ul > li:last-of-type |
 | //ul[@test='true']/li[@test='true'][last()] | ul[test='true'] > li[test='true']:last-of-type |
 
+**Content selectors**
+
+For number comparisons currently only the integer types are supported. A floating point number will result in an XQuery parse error.
+
+| XQuery                     | Description                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- |
+| //price[text()='100 EUR']  | Selects all price nodes that have content that equals to string "100 EUR"          |
+| //price[text()!='100 EUR'] | Selects all price nodes that have content that does not equal to string "100 EUR"  |
+| //price[text()>100]        | Selects all price nodes that have content that is parsable to int greater than 100 |
+| //price[text()=100]        | Selects all price nodes that have content that is parsable to int equal 100        |
+
 ## Known issues and limitations
 
 Some of the issues and limitations that are known to the maintainer/developers.
 
 1. **Missing error hints** - _When parsing of the XML or XQ fails there are no error hints of which line and character the error occurred._
-2. **DTD and CDATA** - _XML document that contains DTD or CDATA is considered invalid._
-3. **XML parsing strictness** -
-   _Parsing of the XML is not as strict as it should be. Such as:_
+2. **XML parsing** -
 
-   - _XML tag with duplicate attributes is not considered invalid but it should be._
-   - _Tags that start with the string **'xml'** are considered valid_
-   - _XML prelude is not validated at all and can be included anywhere in the document_
-   - _XML tag/attribute can contain multiple namespace indicators and can end with a namespace indicator (:)_
+   - _Parsing of the XML is not as strict as it should be. Such as:_
 
-   _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
+     - _XML tag with duplicate attributes is not considered invalid but it should be._
+     - _Tags that start with the string **'xml'** are considered valid_
+     - _XML prelude is not validated at all and can be included anywhere in the document_
+     - _XML tag/attribute can contain multiple namespace indicators and can end with a namespace indicator (:)_
+     - _And many more ..._
+
+     _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
+
+   - _On the other hand many of the XML valid constructs are not supported. Such as:_
+
+     - _DTD._
+     - _CDATA_
+     - _Single quotes for attribute definitions_
+     - _And many more ..._
 
 ## Unit tests
 
