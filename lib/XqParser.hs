@@ -14,7 +14,6 @@ where
 
 import Control.Applicative
 import Parser
-import Utils
 import XmlParser
 
 type IsRecursive = Bool
@@ -28,6 +27,8 @@ data TagSelector = WildcardTag | PreciseTag String deriving (Show, Eq)
 data AttributeSelector = BasicAttribute String (Maybe String) deriving (Show, Eq)
 
 data ContentSelector = StringContent Cmp String | NumberContent Cmp Int deriving (Show, Eq)
+
+data ChildContentSelector = ChildContent TagSelector ContentSelector deriving (Show, Eq)
 
 data XqSelector
   = XqTag TagSelector
@@ -68,7 +69,7 @@ positionSelectorParser =
 attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
   BasicAttribute
-    <$> (charParser '@' *> spanParser (noneOf [(== ']'), (== '=')]))
+    <$> (charParser '@' *> xmlNameParser)
     <*> optional (charParser '=' *> xqStringLiteralParser)
 
 contentSelectorParser :: Parser ContentSelector
