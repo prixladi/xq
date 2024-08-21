@@ -58,26 +58,17 @@ selectorParser =
   (XqPosition <$> positionSelectorParser)
     <|> (XqAttribute <$> attributeSelectorParser)
     <|> (XqContent <$> contentSelectorParser)
-    -- for child selector we allow just the relative path hence first node
-    -- hence first node needs to be always present and first not will not be recursive
-    <|> (XqChild <$> (((:) . XqNode False <$> selectorsParser) <*> xqParser))
-
-positionSelectorParser :: Parser PositionSelector
-positionSelectorParser =
-  (PrecisePosition Eq <$> intParser)
-    <|> (PrecisePosition <$ stringParser "position()" <*> cmpParser <*> intParser)
-    <|> (LastPosition <$ stringParser "last()")
+    <|> (XqChild <$> childSelectorParser)
 
 tagSelectorParser :: Parser TagSelector
 tagSelectorParser =
   (PreciseTag <$> xmlNameParser)
     <|> (WildcardTag <$ charParser '*')
 
-attributeSelectorParser :: Parser AttributeSelector
-attributeSelectorParser =
-  BasicAttribute
-    <$> (charParser '@' *> xmlNameParser)
-    <*> optional (charParser '=' *> xqStringLiteralParser)
+-- for child selector we allow just the relative path hence first node
+-- hence first node needs to be always present and first not will not be recursive
+childSelectorParser :: Parser [XqValue]
+childSelectorParser = ((:) . XqNode False <$> selectorsParser) <*> xqParser
 
 contentSelectorParser :: Parser ContentSelector
 contentSelectorParser =
@@ -85,6 +76,18 @@ contentSelectorParser =
     *> ( NumberContent <$> cmpParser <*> intParser
            <|> StringContent <$> cmpParser <*> xqStringLiteralParser
        )
+
+attributeSelectorParser :: Parser AttributeSelector
+attributeSelectorParser =
+  BasicAttribute
+    <$> (charParser '@' *> xmlNameParser)
+    <*> optional (charParser '=' *> xqStringLiteralParser)
+
+positionSelectorParser :: Parser PositionSelector
+positionSelectorParser =
+  (PrecisePosition Eq <$> intParser)
+    <|> (PrecisePosition <$ stringParser "position()" <*> cmpParser <*> intParser)
+    <|> (LastPosition <$ stringParser "last()")
 
 cmpParser :: Parser Cmp
 cmpParser =
