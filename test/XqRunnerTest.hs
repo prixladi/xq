@@ -24,7 +24,8 @@ instance TestModule XqRunnerTestModule where
       ("runXqWithAttributeSelectors3", runXqWithAttributeSelectorsTest3),
       ("runXqWithAttributeSelectors4", runXqWithAttributeSelectorsTest4),
       ("runXqWithContentSelectors1", runXqWithContentSelectorsTest1),
-      ("runXqWithContentSelectors2", runXqWithContentSelectorsTest2)
+      ("runXqWithContentSelectors2", runXqWithContentSelectorsTest2),
+      ("runXqWithChildSelectors1", runXqWithChildSelectorsTest1)
     ]
 
 runEmptyXqTest :: Either String ()
@@ -128,5 +129,13 @@ runXqWithContentSelectorsTest2 = do
   let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlContent "Haskell", XmlNode "price" [] [XmlContent "123"]], XmlNode "book" [("lang", "en")] [XmlContent "Haskell", XmlNode "price" [] [XmlContent "11", XmlProcessingInstruction "pi aaaa ?"], XmlProcessingInstruction "pi aaaa ?"], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "2"], XmlNode "title" [] [XmlContent "jack"]]]
   let xq = [XqNode True [XqTag (PreciseTag "book"), XqContent $ StringContent Eq "Haskell"], XqNode False [XqTag (PreciseTag "price"), XqContent (NumberContent Gt 12)]]
   let expected = [XmlNode "price" [] [XmlContent "123"]]
+
+  expectEq expected (runXq xq xml)
+
+runXqWithChildSelectorsTest1 :: Either String ()
+runXqWithChildSelectorsTest1 = do
+  let xml = XmlNode "bookstore" [] [XmlNode "book" [("lang", "en")] [XmlNode "price" [] [XmlContent "310"]], XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "125"], XmlNode "title" [] [XmlContent "jack"]]]
+  let xq = [XqNode True [XqTag (PreciseTag "book"), XqChild [XqNode False [XqTag $ PreciseTag "price", XqContent $ NumberContent Lt 200]]]]
+  let expected = [XmlNode "book" [("lang", "de")] [XmlNode "price" [] [XmlContent "125"], XmlNode "title" [] [XmlContent "jack"]]]
 
   expectEq expected (runXq xq xml)
