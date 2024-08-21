@@ -8,7 +8,10 @@ import XqParser
 
 runXq :: [XqValue] -> XmlValue -> [XmlValue]
 runXq [] xml = [xml]
-runXq query xml = foldl foldValue [XmlNode "root" [] [xml]] query
+runXq query xml = runXq' query [XmlNode "root" [] [xml]]
+
+runXq' :: [XqValue] -> [XmlValue] -> [XmlValue]
+runXq' query xml = foldl foldValue xml query
   where
     foldValue acc cur = acc >>= runXqValue cur
 
@@ -34,6 +37,7 @@ matchNode (XqTag tag) _ (_, node) = matchTag tag node
 matchNode (XqAttribute att) _ (_, node) = matchAttribute att node
 matchNode (XqContent content) _ (_, node) = matchContent content node
 matchNode (XqPosition pos) len node = matchPosition pos len node
+matchNode (XqChild xq) _ (_, node) = (not . null . runXq' xq) [node]
 
 matchTag :: TagSelector -> XmlValue -> Bool
 matchTag WildcardTag _ = True
@@ -53,7 +57,7 @@ matchAttribute xq xml = error $ "Unable to match attribute with provided argumen
 matchContent :: ContentSelector -> XmlValue -> Bool
 matchContent (StringContent cmp string) (XmlNode _ _ children) = anyContentMatches cmp string Just children
 matchContent (NumberContent cmp number) (XmlNode _ _ children) = anyContentMatches cmp number readMaybe children
-matchContent xq xml = error $ "Unable to match attribute with provided arguments, xq: " ++ show xq ++ ", xml" ++ show xml
+matchContent xq xml = error $ "Unable to match content with provided arguments, xq: " ++ show xq ++ ", xml" ++ show xml
 
 anyContentMatches :: (Ord a) => Cmp -> a -> (String -> Maybe a) -> [XmlValue] -> Bool
 anyContentMatches cmp expected tryParse = getAny . foldMap toAny

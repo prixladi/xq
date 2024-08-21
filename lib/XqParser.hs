@@ -28,13 +28,12 @@ data AttributeSelector = BasicAttribute String (Maybe String) deriving (Show, Eq
 
 data ContentSelector = StringContent Cmp String | NumberContent Cmp Int deriving (Show, Eq)
 
-data ChildContentSelector = ChildContent TagSelector ContentSelector deriving (Show, Eq)
-
 data XqSelector
   = XqTag TagSelector
   | XqPosition PositionSelector
   | XqAttribute AttributeSelector
   | XqContent ContentSelector
+  | XqChild [XqValue]
   deriving (Show, Eq)
 
 data XqValue = XqNode IsRecursive [XqSelector] deriving (Show, Eq)
@@ -51,7 +50,7 @@ nodeParser =
 selectorsParser :: Parser [XqSelector]
 selectorsParser = notNull ((:) <$> tagSelector <*> many otherSelector)
   where
-    tagSelector = XqTag <$> ((PreciseTag <$> xmlNameParser) <|> (WildcardTag <$ charParser '*'))
+    tagSelector = XqTag <$> tagSelectorParser
     otherSelector = charParser '[' *> selectorParser <* charParser ']'
 
 selectorParser :: Parser XqSelector
@@ -59,12 +58,20 @@ selectorParser =
   (XqPosition <$> positionSelectorParser)
     <|> (XqAttribute <$> attributeSelectorParser)
     <|> (XqContent <$> contentSelectorParser)
+    -- for child selector we allow just the relative path hence first node
+    -- hence first node needs to be always present and first not will not be recursive
+    <|> (XqChild <$> (((:) . XqNode False <$> selectorsParser) <*> xqParser))
 
 positionSelectorParser :: Parser PositionSelector
 positionSelectorParser =
   (PrecisePosition Eq <$> intParser)
     <|> (PrecisePosition <$ stringParser "position()" <*> cmpParser <*> intParser)
     <|> (LastPosition <$ stringParser "last()")
+
+tagSelectorParser :: Parser TagSelector
+tagSelectorParser =
+  (PreciseTag <$> xmlNameParser)
+    <|> (WildcardTag <$ charParser '*')
 
 attributeSelectorParser :: Parser AttributeSelector
 attributeSelectorParser =
