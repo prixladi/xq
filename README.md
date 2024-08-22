@@ -56,7 +56,7 @@ cat "./bookstore.xml" | xq "//book/*"
 
 ### Supported features
 
-Supported features can be seen in the examples below. More exhaustive documentation is currently in progress. Right now you can check source code directly if you need specific. Parsing of the XQuery can be found in the [Parser file](Lib/XqParser.hs) and usage in querying XML can be found in the [Runner file](Lib/XqRunner.hs).
+Supported features can be seen in the examples below. More exhaustive documentation is currently in progress. Right now you can check source code directly if you need specific. Parsing of the XQuery can be found in the [parser file](lib/XqParser.hs) and usage in querying XML can be found in the [runner file](lib/XqRunner.hs).
 
 ### Examples
 
