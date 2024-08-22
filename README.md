@@ -62,6 +62,8 @@ Supported features can be seen in the examples below. More exhaustive documentat
 
 **Descendant selectors**
 
+Descendant selectors must start with '//' or '/'. The relative syntax without the **slash** qualifier is not supported.
+
 | XQuery    | CSS selector equivalent |
 | --------- | ----------------------- |
 | //div     | div                     |
@@ -81,7 +83,7 @@ Supported features can be seen in the examples below. More exhaustive documentat
 **Position selectors**
 | XQuery | CSS selector equivalent |
 | -------------------- | ----------------------- |
-| //ul/li[1] | ul > li:first-of-type |
+| //ul/li[position()=1] | ul > li:first-of-type |
 | //ul/li[last()] | ul > li:last-of-type |
 | //ul[@test='true']/li[@test='true'][last()] | ul[test='true'] > li[test='true']:last-of-type |
 
@@ -95,6 +97,15 @@ For number comparisons currently only the integer types are supported. A floatin
 | //price[text()!='100 EUR'] | Selects all price nodes that have content that does not equal to string "100 EUR"  |
 | //price[text()>100]        | Selects all price nodes that have content that is parsable to int greater than 100 |
 | //price[text()=100]        | Selects all price nodes that have content that is parsable to int equal 100        |
+
+**Child selectors**
+
+Child selectors allow to nest the additional XQuery into the selector and its result is treated as a boolean value. Child selectors support the same syntax as root XQuery with one exception - the first descendant selector must be relative (must start directly with tag without the **/** or **//** prefix)
+
+| XQuery                                               | Description                                                                                                                                     |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| //book[price[text()<500]]/title                      | Selects all titles of boots that have a price that is a number lesser than 500                                                               |
+| //bookstore[book[@lang='en']/genre[text()>'comedy']] | Selects all bookstores that have at least one book that has attribute 'lang' set to 'en' and has genre subnode that contains the text 'comedy'. |
 
 ## Known issues and limitations
 
@@ -113,7 +124,7 @@ Some of the issues and limitations that are known to the maintainer/developers.
 
      _But this should not be so much of an issue since **xq** primary use is querying and not validating the XML_
 
-   - _On the other hand many of the XML valid constructs are not supported. Such as:_
+   - _On the other hand, many of the XML valid constructs are not supported. Such as:_
 
      - _DTD._
      - _CDATA_
